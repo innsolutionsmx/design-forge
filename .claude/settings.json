@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "inns-ai-flow": {
+      "source": {
+        "source": "github",
+        "repo": "innsolutionsmx/inns-ai-flow"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "inns-ai-flow@inns-ai-flow": true
+  }
+}
