@@ -26,10 +26,12 @@ full-site redesigns:
 2. Baseline screenshot of the real section (the "before"). Ideating something that has
    no baseline requires telling the user there will be nothing to compare against.
 3. Variants as self-contained HTML mockups in worktrees, referencing real repo assets
-   by relative path.
-4. Show each variant as it's ready: screenshot at the reference viewport + open the
-   live URL in the user's browser (`open <url>`; URLs also printed on their own line
-   in a code block — never inline, terminal truncation corrupts them).
+   by relative path — always including one fresh direction beyond the literal ask.
+4. Compose the comparative preview sheet (explicit format per hard rule 9, each
+   variant in its real contexts, frames at real target width), show it as soon as
+   it's ready + open the live URL in the user's browser (`open <url>`; URLs also
+   printed on their own line in a code block — never inline, terminal truncation
+   corrupts them).
 5. Iterate v2, v3… on user feedback.
 6. Only on "esta es": implement in the real project (Blade/CSS/components, `feat/*`
    branch). Non-winning mockups stay parked in their worktrees as inventory.
@@ -57,6 +59,16 @@ full-site redesigns:
 8. **Vertical budget from v1.** Designs fit the primary reference viewport
    intentionally and never depend on an exact height — fold-crossing elements must
    look deliberate; use fluid spacing (`clamp()`, `100svh`).
+9. **Never a bare render.** Any design options shown to the user use the explicit
+   comparative format: case badge (A/B/C) + title + status chip (`Recomendado` /
+   `Variación fresca` / `Riesgo`) + 1–2 line description with the tradeoff + frames
+   with context captions and a legible/ilegible badge. And always include at least
+   one fresh direction of your own beyond the literal ask — if the user brought a
+   CONCRETE design to implement, skip variations entirely and build it.
+10. **The preview must not lie.** Verify every render visually before showing it —
+   CSS specificity can leave text invisible while the CSS "looks right" (`.nav-links a`
+   at (0,2,1) beats `.nav-cta` at (0,2,0); write `a.nav-cta`). Render frames at the
+   real target width, never narrow columns (narrow crops fake overflows).
 
 ## Proven practices (keep doing these)
 
