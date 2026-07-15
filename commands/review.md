@@ -18,8 +18,13 @@ of the harness: an evidence-based pass/iterate decision, bounded at 3 iterations
 ### 1. Gather evidence
 - Run Impeccable's critique (`/impeccable:critique`) and audit (`/impeccable:audit`)
   against the running page. Capture scores and findings.
-- With the Playwright MCP, screenshot the target page at three viewports:
-  375×812 (mobile), 768×1024 (tablet), 1440×900 (desktop).
+- With the Playwright MCP, screenshot the target page at the **reference viewports
+  recorded in DESIGN.md** (primary, mobile, spot-check). Only if DESIGN.md doesn't
+  record them, fall back to 375×812 / 768×1024 / 1440×900 — and flag that init should
+  be re-run to capture the user's real viewport.
+- Before any fullPage screenshot, scroll through the page in steps with short delays
+  so on-scroll reveals (IntersectionObserver entrances) have fired — otherwise revealed
+  content captures at opacity 0 and looks broken without being broken.
 - Exercise the key interactions with Playwright (hover, focus, open menus, submit
   forms) and screenshot any state that looks off. Check the console for errors.
 
@@ -27,6 +32,10 @@ of the harness: an evidence-based pass/iterate decision, bounded at 3 iterations
 Look at the screenshots yourself — do not rely on scores alone. Evaluate against
 DESIGN.md and PRODUCT.md: hierarchy, spacing rhythm, token fidelity, responsive
 integrity, interaction states, accessibility findings from the audit.
+
+When presenting to the user, screenshots are reference only — their verdict happens on
+the live URL in their own browser: run `open <url>` for them and print the URL on its
+own line in a code block (never inline; terminal truncation corrupts copied URLs).
 
 Verdict per iteration, reported to the user with the screenshots:
 - **PASA** → go to step 4.

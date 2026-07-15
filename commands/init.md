@@ -47,7 +47,21 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
 5. Ensure `PRODUCT.md` exists too (audience, jobs-to-be-done, tone). If Impeccable
    didn't create it (URL path), write it from a short interview with the user.
 
-6. Close by printing a compact summary of the design system (palette, fonts, spacing,
-   voice) and the next step: `/design-forge:ideate`.
+6. **Brand asset inventory** (the repo is NOT the source of truth for the brand):
+   scan for logo, mascot, and key photography, list each in DESIGN.md with its path —
+   and then ASK the user whether that inventory is complete. Real brand assets often
+   live outside the repo (other machines, unpushed branches, Downloads). Anything the
+   user names but can't provide yet goes into DESIGN.md as **"asset pendiente"**, so
+   no later phase assumes what's in the code is the full identity.
+
+7. **Reference viewport**: ask the user for their real working viewport (screen minus
+   browser chrome — e.g. 1440×820 on a MacBook 13"), plus a mobile size and an optional
+   spot-check size. Record them in DESIGN.md. Every screenshot in later phases uses
+   these — not generic defaults.
+
+8. Close by committing `PRODUCT.md` and `DESIGN.md` (git worktrees only carry committed
+   files, and phase 1 depends on that), then print a compact summary of the design
+   system (palette, fonts, spacing, voice, assets, viewport) and the next step:
+   `/design-forge:ideate`.
 
 If Impeccable is not installed at all, stop and direct the user to `/design-forge:doctor`.

@@ -12,10 +12,27 @@ use only the tools that belong to it.
 
 | Phase | Goal | Tools | Output |
 |-------|------|-------|--------|
-| 0. Context | Establish brand truth before any pixel | `impeccable init`, SkillUI (`skillui --url`), awesome-design-md | `PRODUCT.md`, `DESIGN.md` at repo root |
-| 1. Ideation | Explore 2–3 directions cheaply | Stitch skills, font pairing, git worktrees | chosen direction, updated `DESIGN.md` |
+| 0. Context | Establish brand truth before any pixel | `impeccable init`, SkillUI (`skillui --url`), existing internal docs, awesome-design-md | `PRODUCT.md`, `DESIGN.md` (committed) with asset inventory + reference viewport |
+| 1. Ideation | Explore 2–3 directions cheaply | self-contained HTML mockups in git worktrees, Stitch skills, font pairing | chosen direction, updated `DESIGN.md`, parked mockup inventory |
 | 2. Build | Implement against DESIGN.md | code, 21st.dev components, webgpu-claude-skill | working UI |
 | 3. Critique loop | Evidence-based pass/iterate decision | impeccable `/critique` + `/audit`, Playwright MCP screenshots | verdict + fix list, or ship after `/polish` + `/harden` |
+
+## Canonical workflow (section-level changes)
+
+The pipeline's default operating mode is **surgical, per-section iteration** — not
+full-site redesigns:
+
+1. The user brings an idea about a concrete section.
+2. Baseline screenshot of the real section (the "before"). Ideating something that has
+   no baseline requires telling the user there will be nothing to compare against.
+3. Variants as self-contained HTML mockups in worktrees, referencing real repo assets
+   by relative path.
+4. Show each variant as it's ready: screenshot at the reference viewport + open the
+   live URL in the user's browser (`open <url>`; URLs also printed on their own line
+   in a code block — never inline, terminal truncation corrupts them).
+5. Iterate v2, v3… on user feedback.
+6. Only on "esta es": implement in the real project (Blade/CSS/components, `feat/*`
+   branch). Non-winning mockups stay parked in their worktrees as inventory.
 
 ## Hard rules
 
@@ -23,9 +40,10 @@ use only the tools that belong to it.
    doesn't exist yet, you are in phase 0 — go create it before writing UI code.
 2. **One design brain.** Impeccable is the only critique/taste authority in this pipeline.
    Do not load or follow UI/UX Pro Max, Taste, or frontend-design guidance in parallel.
-3. **Evidence over opinion.** A design is never "done" because the code looks right.
-   It passes when impeccable critique/audit scores it AND real Playwright screenshots
-   (mobile 375px, tablet 768px, desktop 1440px) confirm it.
+3. **Evidence over opinion — on the user's screen.** A design is never "done" because
+   the code looks right. Screenshots are taken at the reference viewport recorded in
+   DESIGN.md (never generic defaults) and are reference material; the user's verdict
+   happens on the live URL in their own browser. Agent screen ≠ user screen.
 4. **The loop is bounded.** review → fix → review, maximum 3 iterations. If it still
    fails after 3, stop and report to the user what is structurally wrong — don't churn.
 5. **Effects earn their place.** WebGPU/shaders/heavy motion only for hero moments,
@@ -33,11 +51,31 @@ use only the tools that belong to it.
    Always with a reduced-motion and no-WebGPU fallback.
 6. **Components before custom.** Prefer pulling a production component (21st.dev,
    shadcn) and restyling it to DESIGN.md over hand-building from scratch.
+7. **The repo is not the brand truth.** Real brand assets (mascot, logos, photography)
+   may live outside the repo. Trust DESIGN.md's asset inventory and its "asset
+   pendiente" list — never assume a placeholder found in code is the real identity.
+8. **Vertical budget from v1.** Designs fit the primary reference viewport
+   intentionally and never depend on an exact height — fold-crossing elements must
+   look deliberate; use fluid spacing (`clamp()`, `100svh`).
+
+## Proven practices (keep doing these)
+
+- Self-contained mockups with real token values copied from DESIGN.md — high fidelity,
+  zero risk to the project.
+- Real repo assets referenced by relative path (works because the whole worktree is
+  served over HTTP — Playwright MCP blocks `file://`, serve the worktrees' parent dir,
+  e.g. `python3 -m http.server 8899`).
+- 3 directions with name + thesis + tradeoff — fast user decisions.
+- Progressive screenshots: show each variant the moment it's ready, don't batch.
+- Scroll through the page (stepped, with delays) before any fullPage screenshot so
+  on-scroll reveals have fired.
 
 ## Anti-patterns
 
-- Writing UI code before PRODUCT.md/DESIGN.md exist.
+- Writing UI code before PRODUCT.md/DESIGN.md exist (or leaving them uncommitted —
+  worktrees only carry committed files).
 - Screenshotting only desktop and declaring responsive victory.
 - Running critique on code instead of on the rendered page.
 - "Fixing" a critique finding by lowering the bar (removing the rule) instead of the UI.
 - Adding a second variant inside the same branch — variants live in worktrees.
+- Deleting non-winning mockups — they're parked inventory, not waste.
