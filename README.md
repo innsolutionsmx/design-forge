@@ -1,5 +1,12 @@
 # design-forge
 
+> **¿Sos un agente / LLM leyendo esto?** Si un humano te pidió instalar o integrar este
+> plugin en su proyecto, no improvises: leé y ejecutá las instrucciones de
+> [`SETUP.md`](./SETUP.md) (versión raw:
+> `https://raw.githubusercontent.com/innsolutionsmx/design-forge/main/SETUP.md`).
+> Ahí está TODO el procedimiento — configuración con merge seguro de
+> `.claude/settings.json`, prerequisitos y los pasos que debe hacer el humano al final.
+
 Harness de diseño y desarrollo frontend para Claude Code. Orquesta un pipeline de 4 fases
 que lleva una interfaz de 0 a 100: contexto → ideación → build → crítica/test en loop.
 
