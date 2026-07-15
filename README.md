@@ -30,6 +30,21 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 
 ## Instalación
 
+### Setup automático (recomendado — para agentes)
+
+Pegale esto a Claude Code dentro del proyecto:
+
+```
+Lee https://raw.githubusercontent.com/innsolutionsmx/design-forge/main/SETUP.md
+y ejecuta el setup en este proyecto.
+```
+
+El agente deja `.claude/settings.json` configurado (merge seguro, sin pisar hooks ni
+permisos existentes). Como ese archivo va trackeado en git, **el resto del equipo no
+hace nada**: pull → abrir Claude Code → aceptar Trust, y los plugins se instalan solos.
+
+### Manual
+
 ```
 /plugin marketplace add innsolutionsmx/design-forge
 /plugin install design-forge
