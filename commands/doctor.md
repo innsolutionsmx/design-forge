@@ -33,6 +33,10 @@ anything without asking — diagnose first.
 8. **Project context**: do `PRODUCT.md` and `DESIGN.md` exist at repo root, committed,
    and does DESIGN.md record the reference viewport and brand asset inventory?
    If not, first step is `/design-forge:init`.
+8b. **Clone up to date**: `git fetch origin` then
+   `git rev-list --count HEAD..origin/main`. If there are unpulled commits, ⚠️ with
+   the count — a stale clone produces false baselines in phase 1 (especially on
+   multi-machine setups). Fix: sync before ideating.
 9. **Conflict check** (important): detect competing design brains — UI/UX Pro Max
    (`design-system/MASTER.md` or `uipro` CLI), taste-skill, or Anthropic's
    frontend-design skill active in this project. If found, WARN: design-forge assumes

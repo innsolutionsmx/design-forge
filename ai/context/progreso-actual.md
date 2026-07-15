@@ -35,6 +35,10 @@
   los inventaría en DESIGN.md), render al ancho real, fallback Chrome headless
   (doctor 3b), disciplina de especificidad CSS + verificación visual del render.
   **Pendiente: decisión de Pepe para promover a `main` + bump a v0.3.0 (release).**
+- [x] **Gotcha #10 (upstream sync)** — implementado en `dev`: ideate Step 0a se niega
+  a tomar baseline con clone desactualizado (git fetch + rev-list count); doctor 8b
+  reporta commits sin bajar. Cierra el cruce completo contra
+  landing-crb/design/design-forge-gotchas.md (gotchas 1–11 + F1–F7 ✅).
 - [ ] Validar la feature en la próxima corrida real en landing-crb (CA1–CA5 del
   handoff como checklist).
 - [ ] Segunda corrida real del pipeline en landing-crb → nuevos gotchas.

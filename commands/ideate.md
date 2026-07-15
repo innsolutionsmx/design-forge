@@ -16,7 +16,21 @@ light content sections). If the viewport isn't recorded, ask the user for it and
 it to DESIGN.md before continuing. If real contexts aren't recorded, detect them from
 the live site (or ask) and save them too.
 
-## Step 0 — Route the request
+## Step 0a — Sync check (before anything else)
+
+A stale clone produces a FALSE baseline — worse than no baseline (a whole ideation
+round in landing-crb was built 37 commits behind upstream and had to be redone).
+Before routing:
+
+1. `git fetch origin`
+2. `git rev-list --count HEAD..origin/main` (and against the project's base branch,
+   e.g. `origin/dev`, if that's what the site serves).
+3. If the count is 0 → continue silently (the normal case costs nothing).
+4. If there are unpulled commits → STOP. Report the count and REFUSE to take a
+   baseline or build mockups until the user syncs. Do not offer to "continue anyway"
+   — every artifact of the session would be built on a dead base.
+
+## Step 0b — Route the request
 
 Determine what the user actually brought:
 
