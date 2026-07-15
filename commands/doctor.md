@@ -16,6 +16,12 @@ anything without asking — diagnose first.
 3. **Static HTTP server** (required for mockups): the Playwright MCP blocks `file://`,
    so phase 1 serves mockup worktrees over HTTP. Check `python3 --version` or that
    `npx serve` is available. Fix: install Python 3 or Node (either works).
+3b. **Render fallback (Chrome headless)**: when the Playwright MCP is unavailable,
+   previews render via `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
+   Check a Chrome/Chromium binary exists (macOS:
+   `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; Linux:
+   `which google-chrome chromium`). Warn-only if missing while Playwright MCP is
+   connected; error if BOTH are missing (phase 1 can't render at all).
 4. **SkillUI** (optional — client branding extraction): `which skillui`.
    Fix: `npm i -g skillui` (+ `npx playwright install chromium` for ultra mode).
 5. **Stitch skills** (optional — ideation concepts): check for the stitch-design

@@ -26,10 +26,13 @@
 
 ## Próximos pasos
 
-- [ ] **Feature "Preview comparativo explícito"** (handoff de landing-crb 2026-07-15,
-  rediseño navbar): ante pedido de diseño sin diseño concreto, generar preview con
-  ≥2 variaciones (siempre una "fresca" propia), formato explícito obligatorio
-  (badge + título + chip de estado + descripción + captions de contexto), cada
-  variación en sus contextos reales, render al ancho real del target, fallback
-  Chrome headless sin Playwright. Plan de implementación pendiente de aprobación.
+- [x] **Feature "Preview comparativo explícito"** — implementada en `dev`
+  (rama `feat/preview-comparativo`, handoff de landing-crb 2026-07-15). Cubre
+  RF1–RF7: router diseño-concreto vs preview, sheet comparativo con formato
+  explícito obligatorio, variación fresca obligatoria, contextos reales (init 7b
+  los inventaría en DESIGN.md), render al ancho real, fallback Chrome headless
+  (doctor 3b), disciplina de especificidad CSS + verificación visual del render.
+  **Pendiente: decisión de Pepe para promover a `main` + bump a v0.3.0 (release).**
+- [ ] Validar la feature en la próxima corrida real en landing-crb (CA1–CA5 del
+  handoff como checklist).
 - [ ] Segunda corrida real del pipeline en landing-crb → nuevos gotchas.

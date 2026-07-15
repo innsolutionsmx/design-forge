@@ -59,6 +59,12 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
    spot-check size. Record them in DESIGN.md. Every screenshot in later phases uses
    these — not generic defaults.
 
+7b. **Real contexts inventory**: record in DESIGN.md the visual environments where
+   components actually live (e.g. "hero oscuro con imagen", "secciones de contenido
+   claras", "footer primary"). Detect them from the live site or the views; confirm
+   with the user. Phase 1 mounts every design variation in these contexts to expose
+   legibility problems before any code is written.
+
 8. Close by committing `PRODUCT.md` and `DESIGN.md` (git worktrees only carry committed
    files, and phase 1 depends on that), then print a compact summary of the design
    system (palette, fonts, spacing, voice, assets, viewport) and the next step:
