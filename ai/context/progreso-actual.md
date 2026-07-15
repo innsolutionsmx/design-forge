@@ -11,8 +11,10 @@
 - **Fecha**: 2026-07-15
 - **Máquina**: Mac (oficina)
 - **Rama actual**: `dev`
-- **Última acción**: Dogfood — el repo instala inns-ai-flow (gitflow + guardias),
-  rama `dev` creada.
+- **Última acción**: Documentación completa (`docs/`: qué-es-y-por-qué, casos de uso,
+  referencia, actualización, desarrollo-y-releases) + `autoUpdate: true` en settings
+  propios y ejemplos del SETUP + fallback de instalación documentado. En `dev` junto
+  con la feature de preview comparativo, pendiente de release.
 
 ---
 

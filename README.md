@@ -72,6 +72,16 @@ El MCP de Playwright viene incluido en el plugin — no hay que instalarlo apart
 
 Corré `/design-forge:doctor` y te dice exactamente qué te falta.
 
+## Documentación
+
+| Doc | Qué cubre |
+|-----|-----------|
+| [`docs/que-es-y-por-que.md`](./docs/que-es-y-por-que.md) | El problema que originó el plugin, sus dos ideas centrales y cómo funciona por dentro |
+| [`docs/casos-de-uso.md`](./docs/casos-de-uso.md) | Escenarios reales paso a paso (rediseño de sección, marca de cliente, review…) |
+| [`docs/referencia.md`](./docs/referencia.md) | Cada comando, la doctrina completa y el MCP bundleado |
+| [`docs/actualizacion.md`](./docs/actualizacion.md) | Instalación y actualización automática (autoUpdate, /reload-plugins, fallback) |
+| [`docs/desarrollo-y-releases.md`](./docs/desarrollo-y-releases.md) | El ciclo gotchas → reglas, y cómo se hace una release (dev → main + bump) |
+
 ## Regla de oro: UN solo cerebro de diseño
 
 Impeccable, UI/UX Pro Max, Taste y frontend-design compiten por el mismo rol.

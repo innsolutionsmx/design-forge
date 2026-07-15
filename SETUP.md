@@ -29,10 +29,12 @@ existing file first** and merge these two keys into it, preserving everything el
 {
   "extraKnownMarketplaces": {
     "design-forge": {
-      "source": { "source": "github", "repo": "innsolutionsmx/design-forge" }
+      "source": { "source": "github", "repo": "innsolutionsmx/design-forge" },
+      "autoUpdate": true
     },
     "impeccable": {
-      "source": { "source": "github", "repo": "pbakaus/impeccable" }
+      "source": { "source": "github", "repo": "pbakaus/impeccable" },
+      "autoUpdate": true
     }
   },
   "enabledPlugins": {
@@ -41,6 +43,9 @@ existing file first** and merge these two keys into it, preserving everything el
   }
 }
 ```
+
+`autoUpdate: true` is deliberate: third-party marketplaces have it OFF by default;
+with it on, plugin releases reach the project automatically on the next session start.
 
 If the keys already exist, add these entries inside them — do not replace the objects
 wholesale. If the file doesn't exist, create it with exactly this content.
@@ -74,6 +79,12 @@ The plugins load on session start, so finish by telling the human exactly this:
 
 - Both GitHub repos above must be reachable (they are public). If a marketplace fails
   to install, the error appears in the `/plugin` → Errors tab.
+- **Known fallback**: on some Claude Code versions, `extraKnownMarketplaces` in project
+  settings does not trigger the install prompt on first open. If after Trust nothing
+  installs, run manually: `/plugin marketplace add innsolutionsmx/design-forge` then
+  `/plugin install design-forge@design-forge` (same pattern for impeccable).
+- Full docs (what the plugin is, use cases, reference, updates, releases): `docs/` in
+  this repo.
 - This file is fetched from `main`, so it is always current — do not copy it into
   projects; reference it by URL.
 - Do NOT additionally install UI/UX Pro Max, Taste, or frontend-design in the project:
