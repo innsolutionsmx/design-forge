@@ -1,0 +1,13 @@
+{
+  "name": "design-forge",
+  "owner": {
+    "name": "Innsolutions"
+  },
+  "plugins": [
+    {
+      "name": "design-forge",
+      "source": "./",
+      "description": "Frontend design harness: 4-phase pipeline (context → ideation → build → critique loop) orchestrating Impeccable, SkillUI, Stitch and Playwright."
+    }
+  ]
+}
