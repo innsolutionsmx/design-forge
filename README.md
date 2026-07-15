@@ -31,7 +31,7 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 ## Instalación
 
 ```
-/plugin marketplace add <owner>/design-forge
+/plugin marketplace add innsolutionsmx/design-forge
 /plugin install design-forge
 ```
 
