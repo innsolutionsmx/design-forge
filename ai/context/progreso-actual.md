@@ -11,10 +11,11 @@
 - **Fecha**: 2026-07-15
 - **Máquina**: Mac (oficina)
 - **Rama actual**: `dev`
-- **Última acción**: Documentación completa (`docs/`: qué-es-y-por-qué, casos de uso,
-  referencia, actualización, desarrollo-y-releases) + `autoUpdate: true` en settings
-  propios y ejemplos del SETUP + fallback de instalación documentado. En `dev` junto
-  con la feature de preview comparativo, pendiente de release.
+- **Última acción**: **RELEASE v0.3.0 a `main`** (aprobada por Pepe): preview
+  comparativo explícito (RF1–RF7 del handoff navbar), gotcha #10 (sync check antes
+  de idear), docs/ completos, autoUpdate en settings/ejemplos, dogfood de
+  inns-ai-flow. Los proyectos con autoUpdate la reciben en su próxima sesión.
+  Pendiente: validar preview con CA1–CA5 en la próxima corrida real.
 
 ---
 
