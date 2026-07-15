@@ -13,7 +13,20 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
 
 2. Determine the brand source:
    - If the user passed a URL as argument ($ARGUMENTS), that's the client's existing brand.
-   - Otherwise ask: "¿Partimos de una marca existente (URL) o definimos el diseño desde cero?"
+   - Before asking anything, scan the repo for existing internal design docs:
+     `design-system*.md`, `DESIGN*.md`, `ia/context/design-system.md`, `docs/design*`,
+     tailwind config with custom tokens, CSS custom properties files. If found, offer
+     the **existing docs path** first.
+   - Otherwise ask: "¿Partimos de una marca existente (URL), de docs internos del repo,
+     o definimos el diseño desde cero?"
+
+2b. **Existing internal docs path:**
+   - Read the found docs and token sources. Consolidate them into `DESIGN.md` at repo
+     root in the pipeline's format (tokens, type scale, spacing, radii, shadows, motion,
+     voice, anti-references). Reference the original files as the source of truth and
+     note any gaps the docs don't cover (ask the user only about those).
+   - Do NOT invent tokens that contradict the existing system — this path is
+     consolidation, not redesign.
 
 3. **Existing brand (URL path):**
    - Check SkillUI is installed (`which skillui`). If missing, tell the user to run
