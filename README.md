@@ -33,6 +33,7 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 | 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño en git worktrees paralelos; pairing tipográfico; concepto visual con Stitch si está instalado. |
 | 2 — Build | `/design-forge:build` | Implementa contra DESIGN.md. Componentes de 21st.dev y efectos WebGPU solo donde se justifican. |
 | 3 — Loop | `/design-forge:review` | impeccable critique + audit, screenshots reales en 3 viewports con Playwright, y decisión: pasa o vuelve a build. Antes de ship: polish + harden. |
+| 4 — Teardown | `/design-forge:teardown` | Cierra la exploración sin dejar residuos: archiva los mockups (para no perder trabajo untracked) y elimina los worktrees `idea/*` y sus ramas. |
 | — | `/design-forge:doctor` | Verifica prerequisitos y te dice qué falta y cómo instalarlo. |
 
 ## Instalación

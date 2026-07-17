@@ -24,22 +24,23 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-- [ ] **Limpiar worktrees al cerrar una exploración de ideas** · `origen: landing-crb` · `2026-07-16`
+<!-- Sin pendientes. Las nuevas entran acá vía la skill personal design-forge-mejora. -->
+
+## Hechas
+
+- [x] **Limpiar worktrees al cerrar una exploración de ideas** · `origen: landing-crb` · `2026-07-16` · `cerrada: 2026-07-16`
   - **Contexto/gotcha:** design-forge crea un worktree hermano por cada idea de
     diseño (`landing-crb-idea-hero-split`, `-portada`, etc.), pero al terminar la
-    exploración NO los destruye. Quedaron 6 carpetas residuales colgando en
+    exploración NO los destruía. Quedaron 6 carpetas residuales colgando en
     `Proyectos/`, todas apuntando al mismo commit base, con los mockups HTML
     **untracked** (nunca commiteados) adentro — trabajo invisible para git que se
     pierde si borrás la carpeta a mano.
-  - **Mejora propuesta:** que el flujo de exploración tenga una **compuerta de
-    cierre** (comando `/forge teardown` o similar) que: (1) archive los mockups en
-    una rama `archive/design-ideas` para que no queden untracked, (2) haga
-    `git worktree remove` + `branch -D` de las ideas descartadas, (3) corra
-    `git worktree prune`. Opcional: nacer los worktrees en `.worktrees/` gitignored
-    en vez de carpetas hermanas sueltas, y un aviso al detectar worktrees `idea/*`
-    viejos sin cerrar.
+  - **Resolución:** nueva **Fase 4 — Teardown** del pipeline. Comando
+    `/design-forge:teardown` (`commands/teardown.md`) que archiva los mockups antes
+    de borrar (regla de oro: nada untracked muere) y hace `worktree remove` +
+    `branch -D` + `prune`. Enganchado en `ideate.md` (paso 10), `pipeline/SKILL.md`
+    (fila fase 4) y `README.md`. Pendiente opcional NO hecho: nacer worktrees en
+    `.worktrees/` gitignored + aviso de worktrees viejos (queda para otra iteración).
   - **Impacto:** alto
-
-## Hechas
 
 <!-- Al completar un pendiente, movelo acá con - [x] y la fecha de cierre. -->

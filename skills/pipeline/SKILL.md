@@ -16,6 +16,7 @@ use only the tools that belong to it.
 | 1. Ideation | Explore 2–3 directions cheaply | self-contained HTML mockups in git worktrees, Stitch skills, font pairing | chosen direction, updated `DESIGN.md`, parked mockup inventory |
 | 2. Build | Implement against DESIGN.md | code, 21st.dev components, webgpu-claude-skill | working UI |
 | 3. Critique loop | Evidence-based pass/iterate decision | impeccable `/critique` + `/audit`, Playwright MCP screenshots | verdict + fix list, or ship after `/polish` + `/harden` |
+| 4. Teardown | Close the exploration without leaving residue | `/design-forge:teardown` — archive mockups, `git worktree remove` + `branch -D` + `prune` | idea worktrees archived and removed, tree clean |
 
 ## Canonical workflow (section-level changes)
 
@@ -35,6 +36,9 @@ full-site redesigns:
 5. Iterate v2, v3… on user feedback.
 6. Only on "esta es": implement in the real project (Blade/CSS/components, `feat/*`
    branch). Non-winning mockups stay parked in their worktrees as inventory.
+7. When the exploration is over (winner landed, runner-ups no longer needed), run
+   `/design-forge:teardown` to archive the mockups and remove the `idea/*` worktrees
+   and branches. Ideation opens the scaffold; teardown takes it down.
 
 ## Hard rules
 

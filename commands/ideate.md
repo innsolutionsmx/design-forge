@@ -127,4 +127,10 @@ Determine whether the brief targets an EXISTING section of the site:
 9. When the user picks the winner ("esta es"): implement it in the real project
    (phase 2, on a `feat/*` branch), and update DESIGN.md with any decisions the winning
    direction introduced. Non-winning mockups stay **parked in their worktrees as
-   inventory** — do not delete them.
+   inventory** — do not delete them here.
+
+10. **Close the exploration when it's truly over.** Parked worktrees are inventory, not
+    permanent residue. Once the winner has landed and the runner-ups are no longer
+    needed, run `/design-forge:teardown` — it archives the mockups (so untracked work
+    isn't lost) and removes the `idea/*` worktrees and branches. Ideation opens the
+    scaffold; teardown takes it down. Don't leave andamios up forever.
