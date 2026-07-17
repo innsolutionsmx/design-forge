@@ -10,5 +10,17 @@
   },
   "enabledPlugins": {
     "inns-ai-flow@inns-ai-flow": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/mejoras-detect.sh\""
+          }
+        ]
+      }
+    ]
   }
 }
