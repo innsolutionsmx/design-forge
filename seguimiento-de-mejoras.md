@@ -24,7 +24,19 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-<!-- Sin pendientes. Las nuevas entran acá vía la skill personal design-forge-mejora. -->
+- [ ] **Aislar y vigilar los worktrees de ideación (prevención)** · `origen: design-forge` · `2026-07-16`
+  - **Contexto/gotcha:** la Fase 4 (teardown) ya limpia los worktrees `idea/*` sin
+    perder trabajo, pero es CURATIVA — actúa cuando el residuo ya existe y quedó a la
+    vista. Hoy los worktrees nacen como carpetas hermanas sueltas en `Proyectos/`
+    (`<repo>-idea-*`), que ensucian la vista de proyectos, y nada avisa si una
+    exploración quedó abierta y olvidada.
+  - **Mejora propuesta:** parte preventiva, complementa al teardown: (1) que `ideate`
+    cree los worktrees en `.worktrees/idea-*` (gitignored) dentro del repo en vez de
+    carpetas hermanas — agrupados y fuera de la vista; (2) un aviso (hook o chequeo en
+    `doctor`) que detecte worktrees `idea/*` viejos sin cerrar y sugiera
+    `/design-forge:teardown`. Igual que el teardown cierra el ciclo, esto evita que se
+    abra sin control.
+  - **Impacto:** medio
 
 ## Hechas
 
