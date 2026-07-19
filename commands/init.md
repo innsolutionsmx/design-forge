@@ -54,10 +54,16 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
    user names but can't provide yet goes into DESIGN.md as **"asset pendiente"**, so
    no later phase assumes what's in the code is the full identity.
 
-7. **Reference viewport**: ask the user for their real working viewport (screen minus
-   browser chrome — e.g. 1440×820 on a MacBook 13"), plus a mobile size and an optional
-   spot-check size. Record them in DESIGN.md. Every screenshot in later phases uses
-   these — not generic defaults.
+7. **Reference viewports (desktop AND mobile — both mandatory)**: mobile is a
+   first-class citizen of this pipeline, not an afterthought. Ask the user for:
+   - the real desktop working viewport (screen minus browser chrome — e.g. 1440×820 on
+     a MacBook 13");
+   - a real **mobile** viewport (e.g. 390×844, iPhone 14/15) — REQUIRED, not optional;
+   - the breakpoint(s) where the layout switches to the mobile composition (e.g. 768px);
+   - optionally, a spot-check size (tablet).
+   Record all of them in DESIGN.md under a clear "Viewports" heading. Every screenshot in
+   later phases renders at desktop AND mobile from these values — never generic defaults.
+   A DESIGN.md without a mobile viewport is incomplete; do not close phase 0 without it.
 
 7b. **Real contexts inventory**: record in DESIGN.md the visual environments where
    components actually live (e.g. "hero oscuro con imagen", "secciones de contenido
