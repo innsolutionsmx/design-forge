@@ -14,11 +14,12 @@ secciones claras…). Cierra commiteando ambos archivos.
 ### `/design-forge:ideate [brief]`
 Fase 1 — Ideación. Router: diseño concreto → build directo; sin diseño → preview
 comparativo. Baseline de la sección real primero. 2-3 variaciones (una fresca propia
-obligatoria) como mockups HTML autocontenidos en git worktrees. Entregable: **preview
-sheet** — badge de caso + título + chip de estado + descripción con tradeoff + frames
-por contexto real con badge legible/ilegible, al ancho real del target. Render
-verificado visualmente antes de mostrarse; veredicto del usuario sobre la URL viva.
-Los mockups no elegidos quedan parqueados como inventario.
+obligatoria) construidas **in-place** — rutas de preview temporales en el dev stack vivo,
+o mockups HTML autocontenidos en un subdir gitignored; sin worktrees por defecto (solo
+bajo orden explícita). Entregable: **preview sheet** — badge de caso + título + chip de
+estado + descripción con tradeoff + frames por contexto real con badge legible/ilegible,
+al ancho real del target. Render verificado visualmente antes de mostrarse; veredicto del
+usuario sobre la URL viva. Los previews no elegidos son efímeros (se limpian en teardown).
 
 ### `/design-forge:build [qué]`
 Fase 2 — Build. Implementa contra DESIGN.md (tokens only, mobile-first, accesibilidad

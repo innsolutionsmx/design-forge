@@ -10,8 +10,9 @@ El caso real que definió el pipeline: "quiero mejorar el navbar" en landing-crb
 3. El agente propone 3 direcciones — la fiel a lo pedido, y al menos una fresca
    propia (ej: navbar "isla flotante" tipo Linear) — cada una con nombre, tesis,
    tradeoff y chip (`Recomendado` / `Variación fresca` / `Riesgo`).
-4. Mockups HTML autocontenidos en worktrees, con los tokens reales de DESIGN.md y
-   los assets reales del repo.
+4. Variaciones in-place (sin worktrees): rutas de preview temporales servidas por el
+   dev stack vivo, o mockups HTML autocontenidos en un subdir gitignored — con los
+   tokens reales de DESIGN.md y los assets reales del repo.
 5. **Preview sheet**: una página con las 3 variaciones — badge A/B/C, descripción,
    y cada una montada sobre el hero oscuro Y la página clara, con badge
    legible/ilegible. Renderizada al ancho real (nunca columnas angostas).

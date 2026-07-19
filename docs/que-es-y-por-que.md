@@ -61,9 +61,12 @@ Sus dos ideas centrales:
   acotado a 3 iteraciones, etc.
 - **Playwright MCP bundleado**: la evidencia visual (screenshots reales en viewports
   reales) viene incluida con el plugin; con fallback a Chrome headless si falta.
-- **Mockups en worktrees**: las variaciones se construyen como HTML autocontenido en
-  git worktrees — fidelidad alta, riesgo cero sobre el proyecto, y las no elegidas
-  quedan parqueadas como inventario.
+- **Ideación in-place (sin worktrees por defecto)**: las variaciones se construyen sobre
+  el checkout actual — rutas de preview temporales servidas por el dev stack vivo
+  (Docker/Vite/HMR real), o mockups HTML autocontenidos en un subdir gitignored cuando no
+  hay stack. Un worktree hermano sería invisible al HMR y rompería el preview vivo; solo
+  se crea bajo orden explícita (paralelismo real). Las variaciones no elegidas son
+  efímeras y se limpian en el teardown.
 
 El pipeline evoluciona por evidencia: cada corrida real en un proyecto deja gotchas
 (ver `design/design-forge-gotchas.md` del primer dogfood en landing-crb) que vuelven

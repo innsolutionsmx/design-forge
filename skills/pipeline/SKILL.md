@@ -13,7 +13,7 @@ use only the tools that belong to it.
 | Phase | Goal | Tools | Output |
 |-------|------|-------|--------|
 | 0. Context | Establish brand truth before any pixel | `impeccable init`, SkillUI (`skillui --url`), existing internal docs, awesome-design-md | `PRODUCT.md`, `DESIGN.md` (committed) with asset inventory + reference viewport |
-| 1. Ideation | Explore 2–3 directions cheaply | self-contained HTML mockups in git worktrees, Stitch skills, font pairing | chosen direction, updated `DESIGN.md`, parked mockup inventory |
+| 1. Ideation | Explore 2–3 directions cheaply | in-place preview routes (live dev stack) or self-contained HTML mockups in a gitignored subdir, Stitch skills, font pairing — no worktrees by default | chosen direction, updated `DESIGN.md`, ephemeral preview area |
 | 2. Build | Implement against DESIGN.md | code, 21st.dev components, webgpu-claude-skill | working UI |
 | 3. Critique loop | Evidence-based pass/iterate decision | impeccable `/critique` + `/audit`, Playwright MCP screenshots | verdict + fix list, or ship after `/polish` + `/harden` |
 | 4. Teardown | Close the exploration without leaving residue | `/design-forge:teardown` — archive mockups, `git worktree remove` + `branch -D` + `prune` | idea worktrees archived and removed, tree clean |
@@ -26,8 +26,11 @@ full-site redesigns:
 1. The user brings an idea about a concrete section.
 2. Baseline screenshot of the real section (the "before"). Ideating something that has
    no baseline requires telling the user there will be nothing to compare against.
-3. Variants as self-contained HTML mockups in worktrees, referencing real repo assets
-   by relative path — always including one fresh direction beyond the literal ask.
+3. Variants built **in-place, never in an auto-created worktree** — as temporary preview
+   routes inside the running dev stack when one is mounted (Docker/Vite/HMR), or as
+   self-contained HTML mockups in a gitignored subdir (`design/ideas/`) referencing real
+   repo assets by relative path when there's no live stack. Always include one fresh
+   direction beyond the literal ask. Worktrees only on explicit user request.
 4. Compose the comparative preview sheet (explicit format per hard rule 9, each
    variant in its real contexts, frames at real target width), show it as soon as
    it's ready + open the live URL in the user's browser (`open <url>`; URLs also
@@ -35,10 +38,12 @@ full-site redesigns:
    corrupts them).
 5. Iterate v2, v3… on user feedback.
 6. Only on "esta es": implement in the real project (Blade/CSS/components, `feat/*`
-   branch). Non-winning mockups stay parked in their worktrees as inventory.
+   branch). Non-winning previews are ephemeral — they live in the gitignored preview
+   area, not as permanent inventory.
 7. When the exploration is over (winner landed, runner-ups no longer needed), run
-   `/design-forge:teardown` to archive the mockups and remove the `idea/*` worktrees
-   and branches. Ideation opens the scaffold; teardown takes it down.
+   `/design-forge:teardown` to archive the mockups and remove the gitignored preview
+   area (or any worktrees the user explicitly created). Ideation opens the scaffold;
+   teardown takes it down.
 
 ## Hard rules
 
@@ -78,9 +83,9 @@ full-site redesigns:
 
 - Self-contained mockups with real token values copied from DESIGN.md — high fidelity,
   zero risk to the project.
-- Real repo assets referenced by relative path (works because the whole worktree is
-  served over HTTP — Playwright MCP blocks `file://`, serve the worktrees' parent dir,
-  e.g. `python3 -m http.server 8899`).
+- Real repo assets referenced by relative path. With a live dev stack the running
+  server already resolves them; with the static substrate serve the subdir over HTTP
+  (Playwright MCP blocks `file://`, e.g. `python3 -m http.server 8899`).
 - 3 directions with name + thesis + tradeoff — fast user decisions.
 - Progressive screenshots: show each variant the moment it's ready, don't batch.
 - Scroll through the page (stepped, with delays) before any fullPage screenshot so
@@ -93,5 +98,8 @@ full-site redesigns:
 - Screenshotting only desktop and declaring responsive victory.
 - Running critique on code instead of on the rendered page.
 - "Fixing" a critique finding by lowering the bar (removing the rule) instead of the UI.
-- Adding a second variant inside the same branch — variants live in worktrees.
-- Deleting non-winning mockups — they're parked inventory, not waste.
+- Auto-creating a git worktree to isolate ideation — in a project with a mounted dev
+  stack (Docker/Vite) the worktree is invisible to HMR and breaks the live preview.
+  Variants live in-place (separate routes/files); worktrees only on explicit request.
+- Deleting non-winning previews mid-decision — they're ephemeral but the user may still
+  be A/B-ing; tear them down via `/design-forge:teardown` once the winner lands.
