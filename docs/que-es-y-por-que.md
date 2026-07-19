@@ -55,15 +55,18 @@ Sus dos ideas centrales:
 - **Comandos** (`/design-forge:init|ideate|build|review|doctor`): cada fase es un
   comando con su procedimiento. `doctor` diagnostica prerequisitos y detecta cerebros
   de diseño en conflicto.
-- **Skill de doctrina** (`design-pipeline`): 10 hard rules que se auto-cargan en
+- **Skill de doctrina** (`design-pipeline`): 11 hard rules que se auto-cargan en
   cualquier tarea de UI del proyecto — aunque no invoques ningún comando. Ahí viven
   "DESIGN.md es ley", "never a bare render", "the preview must not lie", el loop
   acotado a 3 iteraciones, etc.
 - **Playwright MCP bundleado**: la evidencia visual (screenshots reales en viewports
   reales) viene incluida con el plugin; con fallback a Chrome headless si falta.
-- **Mockups en worktrees**: las variaciones se construyen como HTML autocontenido en
-  git worktrees — fidelidad alta, riesgo cero sobre el proyecto, y las no elegidas
-  quedan parqueadas como inventario.
+- **Ideación in-place (sin worktrees por defecto)**: las variaciones se construyen sobre
+  el checkout actual — rutas de preview temporales servidas por el dev stack vivo
+  (Docker/Vite/HMR real), o mockups HTML autocontenidos en un subdir gitignored cuando no
+  hay stack. Un worktree hermano sería invisible al HMR y rompería el preview vivo; solo
+  se crea bajo orden explícita (paralelismo real). Las variaciones no elegidas son
+  efímeras y se limpian en el teardown.
 
 El pipeline evoluciona por evidencia: cada corrida real en un proyecto deja gotchas
 (ver `design/design-forge-gotchas.md` del primer dogfood en landing-crb) que vuelven

@@ -20,7 +20,7 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌──────────────────┐
 │ 0. CONTEXTO │ → │ 1. IDEACIÓN │ → │  2. BUILD   │ → │ 3. CRÍTICA + TEST│
 │ PRODUCT.md  │   │ variantes   │   │ código vs   │   │ critique + audit │
-│ DESIGN.md   │   │ worktrees   │   │ DESIGN.md   │   │ + screenshots    │
+│ DESIGN.md   │   │ in-place    │   │ DESIGN.md   │   │ + screenshots    │
 └─────────────┘   └─────────────┘   └─────────────┘   └────────┬─────────┘
                                           ↑                    │
                                           │     ¿pasa? ──no────┘
@@ -30,9 +30,10 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 | Fase | Comando | Qué hace |
 |------|---------|----------|
 | 0 — Contexto | `/design-forge:init` | Extrae el branding del cliente (SkillUI desde URL) o lo define desde cero (impeccable init). Todo lo demás lee PRODUCT.md y DESIGN.md. |
-| 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño en git worktrees paralelos; pairing tipográfico; concepto visual con Stitch si está instalado. |
+| 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño in-place (rutas de preview temporales en el dev stack vivo, o mockups HTML en un subdir gitignored — sin worktrees por defecto); pairing tipográfico; concepto visual con Stitch si está instalado. |
 | 2 — Build | `/design-forge:build` | Implementa contra DESIGN.md. Componentes de 21st.dev y efectos WebGPU solo donde se justifican. |
 | 3 — Loop | `/design-forge:review` | impeccable critique + audit, screenshots reales en 3 viewports con Playwright, y decisión: pasa o vuelve a build. Antes de ship: polish + harden. |
+| 4 — Teardown | `/design-forge:teardown` | Cierra la exploración sin dejar residuos: archiva los mockups (para no perder trabajo untracked) y elimina el área de preview in-place (y los worktrees `idea/*` si el usuario los creó explícito). |
 | — | `/design-forge:doctor` | Verifica prerequisitos y te dice qué falta y cómo instalarlo. |
 
 ## Instalación

@@ -25,9 +25,15 @@ Follow the design-pipeline skill's hard rules; the ones that bite hardest here:
 2. Implement, matching the project's existing stack and conventions.
 3. Accessibility is part of build, not a review afterthought: semantic HTML, focus
    states, labels, contrast per DESIGN.md tokens.
-4. Responsive from the start: build mobile-first against the breakpoints in DESIGN.md
-   (default: 375 / 768 / 1440 if unspecified).
+4. Responsive is part of the deliverable, not an afterthought: build mobile-first against
+   the mobile viewport and breakpoints in DESIGN.md (default: 390 / 768 / 1440 if
+   unspecified). The `@media` mobile implementation ships WITH the component — a build
+   that only holds at desktop width is incomplete. Watch the failure modes that bite at
+   1 column: background-photo cards that crop their subject, text that lands over a busy
+   zone, grids that squash into strips, tap targets under 44px.
 5. When done, do a quick self-check against DESIGN.md (tokens only? states covered?
-   empty/loading/error states?) and hand off: "Listo para `/design-forge:review`."
+   empty/loading/error states?) AND at the mobile viewport (single-column composition
+   holds? photos keep their subject in frame? text legible over every background? no
+   horizontal scroll?), then hand off: "Listo para `/design-forge:review`."
 
 Do NOT run the full critique loop here — that's phase 3's job. Build, self-check, hand off.

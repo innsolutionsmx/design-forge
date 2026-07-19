@@ -13,9 +13,11 @@ anything without asking — diagnose first.
 2. **Playwright MCP** (bundled with this plugin): verify the `playwright` MCP server
    is connected (`claude mcp list` output or attempt a ToolSearch for playwright tools).
    Fix: reinstall/re-enable the design-forge plugin.
-3. **Static HTTP server** (required for mockups): the Playwright MCP blocks `file://`,
-   so phase 1 serves mockup worktrees over HTTP. Check `python3 --version` or that
-   `npx serve` is available. Fix: install Python 3 or Node (either works).
+3. **Static HTTP server** (needed for the static substrate): the Playwright MCP blocks
+   `file://`, so when there's no live dev stack, phase 1 serves the in-place mockup subdir
+   (`design/ideas/`) over HTTP. With a live dev stack the running server renders previews
+   itself — this becomes optional. Check `python3 --version` or that `npx serve` is
+   available. Fix: install Python 3 or Node (either works).
 3b. **Render fallback (Chrome headless)**: when the Playwright MCP is unavailable,
    previews render via `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
    Check a Chrome/Chromium binary exists (macOS:
@@ -31,8 +33,10 @@ anything without asking — diagnose first.
 7. **webgpu-claude-skill** (optional — shaders): check `.claude/skills/` for
    `webgpu-threejs-tsl`. Fix: copy the skill from https://github.com/dgreenheck/webgpu-claude-skill.
 8. **Project context**: do `PRODUCT.md` and `DESIGN.md` exist at repo root, committed,
-   and does DESIGN.md record the reference viewport and brand asset inventory?
-   If not, first step is `/design-forge:init`.
+   and does DESIGN.md record the reference viewports (desktop AND mobile — mobile is
+   mandatory) and brand asset inventory? If the mobile viewport is missing, ⚠️ and send
+   the user to re-run `/design-forge:init`. If PRODUCT/DESIGN don't exist at all, first
+   step is `/design-forge:init`.
 8b. **Clone up to date**: `git fetch origin` then
    `git rev-list --count HEAD..origin/main`. If there are unpulled commits, ⚠️ with
    the count — a stale clone produces false baselines in phase 1 (especially on
@@ -42,6 +46,12 @@ anything without asking — diagnose first.
    frontend-design skill active in this project. If found, WARN: design-forge assumes
    Impeccable as the single design authority; running two brains produces
    contradictory guidance. Recommend disabling the extras for this project.
+10. **Stale ideation worktrees** (hygiene): ideation runs in-place now, so worktrees are
+   opt-in only — any lingering `idea/*` worktree is likely a forgotten exploration eating
+   disk and cluttering the projects view. Run `git worktree list`; if any worktree is on
+   an `idea/*` branch, ⚠️ listing each (path + branch) and suggest `/design-forge:teardown`
+   to archive its mockups and remove it. If there are none, ✅ (nothing to clean). Warning
+   only, never an error — an intentional parallel worktree the user asked for is legitimate.
 
 ## Output
 
