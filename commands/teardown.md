@@ -9,7 +9,7 @@ Phase 1 (Ideation) now works **in-place**: variations live either as temporary p
 routes inside the running dev stack or as self-contained HTML mockups in a gitignored
 subdir (`design/ideas/`) — no worktrees by default. Either way the mockups are
 **untracked** and a naive delete would destroy them. Worktrees only exist when the user
-explicitly asked for real parallelism (`../<repo>-idea-<name>` on branch `idea/<name>`).
+explicitly asked for real parallelism (`.worktrees/idea-<name>` on branch `idea/<name>`).
 This command is the closing cleanup: it archives the mockups so they survive, then
 removes the ephemeral preview area — and any explicit `idea/*` worktrees and branches —
 safely.
@@ -58,9 +58,11 @@ for what git never saw.
    - **In-place preview area (default):** delete the gitignored mockup files/dir
      (`design/ideas/`, the dev-preview dir) and any throwaway `/dev/*-preview` routes
      wired into the app. Leave any preview the user chose to keep.
-   - **Explicit worktrees:** `git worktree remove --force ../<repo>-idea-<name>` (force is
+   - **Explicit worktrees:** `git worktree remove --force .worktrees/idea-<name>` (force is
      now safe — the work is archived) + `git branch -D idea/<name>`. Repeat for each idea
-     marked for removal; leave the kept ones untouched.
+     marked for removal; leave the kept ones untouched. (Older explorations may live in the
+     legacy sibling path `../<repo>-idea-<name>`; `git worktree list` shows the real path —
+     use whatever it reports.)
 
 5. **Prune dangling registrations.** If any worktrees existed, `git worktree prune -v` —
    a folder deleted by hand leaves a stale registration; prune clears it. Skip if the

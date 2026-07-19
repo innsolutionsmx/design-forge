@@ -92,11 +92,15 @@ Determine whether the brief targets an EXISTING section of the site:
        `design/ideas/`) as a self-contained static mockup with the real token values
        copied from DESIGN.md. Reference real repo assets by relative path; they resolve
        because the subdir is served over HTTP (Playwright MCP blocks `file://`).
-   - **Worktree is opt-in only.** Create a worktree (`git worktree add ../<repo>-idea-<name>
-     -b idea/<name>`) ONLY when the user explicitly asks for real parallelism — two live
-     states at once, a hotfix without stashing. Never as the automatic default. If you do,
-     **worktrees only carry committed files**: copy uncommitted PRODUCT.md/DESIGN.md into
-     each worktree right after `git worktree add`.
+   - **Worktree is opt-in only, and born grouped.** Create a worktree ONLY when the user
+     explicitly asks for real parallelism — two live states at once, a hotfix without
+     stashing. Never as the automatic default. When you do, put it INSIDE the repo under a
+     gitignored `.worktrees/` dir, not as a loose sibling folder: `git worktree add
+     .worktrees/idea-<name> -b idea/<name>`. Add `.worktrees/` to the project's `.gitignore`
+     first (once) so the nested worktree doesn't show up as untracked in the main checkout.
+     Grouped and out of the projects view — the opposite of scattered `../<repo>-idea-*`
+     siblings. **Worktrees only carry committed files**: copy uncommitted PRODUCT.md/
+     DESIGN.md into the worktree right after `git worktree add`.
    - **Uncommitted context files (in-place):** PRODUCT.md/DESIGN.md live in the same
      working tree — nothing to copy. (Only an explicit worktree needs them copied in.)
    - **CSS specificity discipline**: write selectors specific enough to win against
