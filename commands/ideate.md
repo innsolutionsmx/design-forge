@@ -1,5 +1,5 @@
 ---
-description: "Fase 1 — Ideación: preview comparativo explícito con 2-3 variaciones en worktrees paralelos"
+description: "Fase 1 — Ideación: preview comparativo explícito con 2-3 variaciones in-place (sin worktrees por defecto)"
 argument-hint: "[brief corto de la sección o feature]"
 ---
 
@@ -69,15 +69,35 @@ Determine whether the brief targets an EXISTING section of the site:
 4. Font pairing: if DESIGN.md doesn't already lock typography, propose one pairing per
    direction (display + body) and record the chosen one in DESIGN.md.
 
-5. Build each variation in its own git worktree:
-   - `git worktree add ../<repo>-idea-<name> -b idea/<name>`
-   - **Worktrees only carry committed files.** If PRODUCT.md or DESIGN.md are
-     uncommitted, copy them into each worktree right after `git worktree add`.
-   - Build each direction as a **self-contained static HTML mockup** with the real token
-     values copied from DESIGN.md — high visual fidelity, zero risk to the project.
-   - Reference real repo assets (logo, mascot, key photos — see the asset inventory in
-     DESIGN.md) by relative path; they resolve because the whole worktree is served
-     over HTTP.
+5. Build each variation **in-place — never create a worktree automatically.** In a
+   project with a mounted dev stack (Docker/Vite) a sibling worktree is invisible to the
+   HMR watcher and breaks the live preview; isolation is not worth that friction for a
+   throwaway mockup. The default substrate adapts to the project:
+
+   - **Detect the substrate first.** Is a live dev stack serving the checkout (Docker/
+     Vite/Next/HMR watching the working directory)? Look for a running dev server
+     (`docker compose ps`, a `vite`/`next dev` process, a `dev` script in `package.json`)
+     and a served preview URL.
+     - **Live dev stack → temporary in-project preview routes.** Add each variation as a
+       throwaway route/view inside the running app, under a single gitignored preview
+       area — e.g. `/dev/<name>-preview` (a Vite/Next route, or a Blade view under a
+       `dev-preview/` include) backed by a gitignored dir (`resources/dev-preview/`,
+       `src/dev-preview/` — whatever the stack expects). The stack that is ALREADY up
+       serves them with real HMR, real assets, and the real CSS pipeline (Tailwind/
+       DaisyUI compile for real) — highest fidelity, no second server, no sibling
+       folder. The whole preview area is deleted when the user picks (phase 4).
+     - **No live dev stack (static site) → self-contained HTML mockups in a gitignored
+       subdir.** Write each direction to `design/ideas/<name>.html` (gitignore
+       `design/ideas/`) as a self-contained static mockup with the real token values
+       copied from DESIGN.md. Reference real repo assets by relative path; they resolve
+       because the subdir is served over HTTP (Playwright MCP blocks `file://`).
+   - **Worktree is opt-in only.** Create a worktree (`git worktree add ../<repo>-idea-<name>
+     -b idea/<name>`) ONLY when the user explicitly asks for real parallelism — two live
+     states at once, a hotfix without stashing. Never as the automatic default. If you do,
+     **worktrees only carry committed files**: copy uncommitted PRODUCT.md/DESIGN.md into
+     each worktree right after `git worktree add`.
+   - **Uncommitted context files (in-place):** PRODUCT.md/DESIGN.md live in the same
+     working tree — nothing to copy. (Only an explicit worktree needs them copied in.)
    - **CSS specificity discipline**: write selectors specific enough to win against
      inherited rules (`a.nav-cta`, not `.nav-cta` — `.nav-links a` (0,2,1) beats
      `.nav-cta` (0,2,0) and leaves text invisible). A mockup that renders wrong makes
@@ -105,8 +125,10 @@ Determine whether the brief targets an EXISTING section of the site:
    to compare with their eyes without imagining anything.
 
 7. Serve, render, verify, show:
-   - The Playwright MCP blocks `file://`. Serve the PARENT directory of the worktrees
-     over HTTP: `python3 -m http.server 8899` (or `npx serve`).
+   - **Live dev stack substrate:** the running stack already serves the preview routes —
+     use its URL (`http://localhost:<port>/dev/<name>-preview`). No extra server.
+   - **Static substrate:** the Playwright MCP blocks `file://`. Serve the repo root (or
+     `design/ideas/`) over HTTP: `python3 -m http.server 8899` (or `npx serve`).
    - Render the preview sheet to image with Playwright at the reference viewport. If
      the Playwright MCP is unavailable, fall back to Chrome headless:
      `chrome --headless=new --screenshot=out.png --window-size=<W>,<H> <url>` and Read
@@ -126,11 +148,14 @@ Determine whether the brief targets an EXISTING section of the site:
 
 9. When the user picks the winner ("esta es"): implement it in the real project
    (phase 2, on a `feat/*` branch), and update DESIGN.md with any decisions the winning
-   direction introduced. Non-winning mockups stay **parked in their worktrees as
-   inventory** — do not delete them here.
+   direction introduced. The non-winning previews are **ephemeral** — they live in the
+   gitignored preview area (or `design/ideas/`), not as permanent inventory. Don't delete
+   them mid-decision (the user may still want to A/B), but they're meant to be torn down
+   once the winner lands.
 
-10. **Close the exploration when it's truly over.** Parked worktrees are inventory, not
-    permanent residue. Once the winner has landed and the runner-ups are no longer
-    needed, run `/design-forge:teardown` — it archives the mockups (so untracked work
-    isn't lost) and removes the `idea/*` worktrees and branches. Ideation opens the
-    scaffold; teardown takes it down. Don't leave andamios up forever.
+10. **Close the exploration when it's truly over.** Once the winner has landed and the
+    runner-ups are no longer needed, run `/design-forge:teardown` — it archives the
+    preview mockups (so untracked work isn't lost) and removes the gitignored preview
+    area (or, if the user explicitly created worktrees, the `idea/*` worktrees and
+    branches). Ideation opens the scaffold; teardown takes it down. Don't leave andamios
+    up forever.

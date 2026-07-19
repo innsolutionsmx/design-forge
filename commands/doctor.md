@@ -13,9 +13,11 @@ anything without asking — diagnose first.
 2. **Playwright MCP** (bundled with this plugin): verify the `playwright` MCP server
    is connected (`claude mcp list` output or attempt a ToolSearch for playwright tools).
    Fix: reinstall/re-enable the design-forge plugin.
-3. **Static HTTP server** (required for mockups): the Playwright MCP blocks `file://`,
-   so phase 1 serves mockup worktrees over HTTP. Check `python3 --version` or that
-   `npx serve` is available. Fix: install Python 3 or Node (either works).
+3. **Static HTTP server** (needed for the static substrate): the Playwright MCP blocks
+   `file://`, so when there's no live dev stack, phase 1 serves the in-place mockup subdir
+   (`design/ideas/`) over HTTP. With a live dev stack the running server renders previews
+   itself — this becomes optional. Check `python3 --version` or that `npx serve` is
+   available. Fix: install Python 3 or Node (either works).
 3b. **Render fallback (Chrome headless)**: when the Playwright MCP is unavailable,
    previews render via `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
    Check a Chrome/Chromium binary exists (macOS:
