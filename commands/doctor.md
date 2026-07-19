@@ -33,8 +33,10 @@ anything without asking — diagnose first.
 7. **webgpu-claude-skill** (optional — shaders): check `.claude/skills/` for
    `webgpu-threejs-tsl`. Fix: copy the skill from https://github.com/dgreenheck/webgpu-claude-skill.
 8. **Project context**: do `PRODUCT.md` and `DESIGN.md` exist at repo root, committed,
-   and does DESIGN.md record the reference viewport and brand asset inventory?
-   If not, first step is `/design-forge:init`.
+   and does DESIGN.md record the reference viewports (desktop AND mobile — mobile is
+   mandatory) and brand asset inventory? If the mobile viewport is missing, ⚠️ and send
+   the user to re-run `/design-forge:init`. If PRODUCT/DESIGN don't exist at all, first
+   step is `/design-forge:init`.
 8b. **Clone up to date**: `git fetch origin` then
    `git rev-list --count HEAD..origin/main`. If there are unpulled commits, ⚠️ with
    the count — a stale clone produces false baselines in phase 1 (especially on

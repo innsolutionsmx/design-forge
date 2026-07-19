@@ -55,7 +55,7 @@ Sus dos ideas centrales:
 - **Comandos** (`/design-forge:init|ideate|build|review|doctor`): cada fase es un
   comando con su procedimiento. `doctor` diagnostica prerequisitos y detecta cerebros
   de diseño en conflicto.
-- **Skill de doctrina** (`design-pipeline`): 10 hard rules que se auto-cargan en
+- **Skill de doctrina** (`design-pipeline`): 11 hard rules que se auto-cargan en
   cualquier tarea de UI del proyecto — aunque no invoques ningún comando. Ahí viven
   "DESIGN.md es ley", "never a bare render", "the preview must not lie", el loop
   acotado a 3 iteraciones, etc.

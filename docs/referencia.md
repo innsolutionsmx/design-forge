@@ -28,10 +28,12 @@ custom (21st.dev/shadcn); efectos WebGPU solo donde se justifican y con fallback
 
 ### `/design-forge:review [url]`
 Fase 3 — Loop de crítica (máx 3 iteraciones). Evidencia: impeccable critique + audit,
-screenshots a los viewports de DESIGN.md (scroll-through previo para disparar
-reveals), interacciones ejercitadas, consola revisada. Veredicto PASA (→ impeccable
-polish + harden como ship gate) o ITERA (fix list priorizada). Tras 3 fallos: reporta
-el problema estructural y a qué fase volver.
+screenshots a los viewports de DESIGN.md — **desktop Y mobile, ambos obligatorios**
+(scroll-through previo para disparar reveals), interacciones ejercitadas, consola
+revisada. Veredicto PASA (→ impeccable polish + harden como ship gate) o ITERA (fix list
+priorizada) — con **gate de mobile bloqueante: sin evidencia mobile o con composición
+mobile rota nunca PASA**. Tras 3 fallos: reporta el problema estructural y a qué fase
+volver.
 
 ### `/design-forge:doctor`
 Diagnóstico: Impeccable (requerido), Playwright MCP, servidor HTTP estático, fallback

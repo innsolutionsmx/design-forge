@@ -10,11 +10,12 @@ You are running phase 1 (Ideation) of the design-forge pipeline.
 Read `PRODUCT.md` and `DESIGN.md` at the repo root. If they don't exist, stop and send
 the user to `/design-forge:init` — ideating without brand context produces generic slop.
 
-From DESIGN.md take the **reference viewport** (primary + mobile) and the **real
-contexts** inventory (the visual environments where components live — e.g. dark hero,
-light content sections). If the viewport isn't recorded, ask the user for it and save
-it to DESIGN.md before continuing. If real contexts aren't recorded, detect them from
-the live site (or ask) and save them too.
+From DESIGN.md take the **reference viewports** (desktop AND mobile — both are required)
+and the **real contexts** inventory (the visual environments where components live —
+e.g. dark hero, light content sections). If either viewport isn't recorded (the mobile
+one is mandatory, not optional), ask the user for it and save it to DESIGN.md before
+continuing. If real contexts aren't recorded, detect them from the live site (or ask)
+and save them too.
 
 ## Step 0a — Sync check (before anything else)
 
@@ -114,10 +115,16 @@ Determine whether the brief targets an EXISTING section of the site:
    - **Chip de estado**: `Recomendado` / `Variación fresca` / `Riesgo`.
    - **Descripción corta** (1–2 lines): what it is and its tradeoff.
    - **Frames**: the variation rendered in EACH real context from DESIGN.md (e.g. over
-     the dark hero AND over a light content page), each frame with a caption naming the
-     context and a `legible` / `ilegible` badge.
-   - Frames render at the **real target width** (the reference viewport — e.g. 1440px),
-     stacked vertically. NEVER narrow columns: a narrow crop produces false overflows.
+     the dark hero AND over a light content page), at BOTH the desktop AND the mobile
+     reference viewport — mobile is not optional. Each frame captioned with the context
+     AND the viewport, and a `legible` / `ilegible` badge PER viewport. A composition can
+     be legible on desktop and illegible on mobile — that is exactly the bug this catches:
+     background-photo cards that read fine on desktop but, collapsed to 1 column, squash
+     into strips, crop their subjects, and bury text under a busy zone.
+   - Desktop frames render at the **real desktop target width** (the reference viewport —
+     e.g. 1440px); mobile frames at the **real mobile width** (e.g. 390px), showing the
+     ACTUAL single-column composition, not a squished desktop. Stack them vertically.
+     NEVER narrow a desktop frame to fake mobile: a narrow crop produces false overflows.
      If you additionally show a comparison grid, caption it explicitly: "el recorte es
      del encuadre, no del diseño".
 
@@ -129,15 +136,18 @@ Determine whether the brief targets an EXISTING section of the site:
      use its URL (`http://localhost:<port>/dev/<name>-preview`). No extra server.
    - **Static substrate:** the Playwright MCP blocks `file://`. Serve the repo root (or
      `design/ideas/`) over HTTP: `python3 -m http.server 8899` (or `npx serve`).
-   - Render the preview sheet to image with Playwright at the reference viewport. If
-     the Playwright MCP is unavailable, fall back to Chrome headless:
-     `chrome --headless=new --screenshot=out.png --window-size=<W>,<H> <url>` and Read
-     the resulting image.
+   - Render the preview sheet to image with Playwright at BOTH the desktop and the mobile
+     reference viewport — one capture per viewport, so the mobile composition is verified
+     with the same rigor as desktop. If the Playwright MCP is unavailable, fall back to
+     Chrome headless: `chrome --headless=new --screenshot=out.png --window-size=<W>,<H> <url>`
+     (run it once per viewport size) and Read each resulting image.
    - Before any fullPage capture, scroll through the page in steps with short delays
      so on-scroll reveals have fired.
-   - **Verify the render visually before showing it** — look at the image yourself:
-     invisible text, broken states, false overflows. Never trust that "the CSS looks
-     right". A preview that hides a broken state sells a false decision.
+   - **Verify the render visually before showing it** — look at BOTH images yourself:
+     invisible text, broken states, false overflows on desktop; and on mobile, collapsed
+     cards, cropped photo subjects, and text buried over a busy zone. Never trust that
+     "the CSS looks right". A preview that hides a broken mobile state sells a false
+     decision just as much as a broken desktop one.
    - Show the sheet AS SOON as it's ready, and the user's verdict happens on the LIVE
      URL in their own browser: always run `open <url>` for them, AND print each URL on
      its own line inside a code block — never inline in prose (terminal truncation

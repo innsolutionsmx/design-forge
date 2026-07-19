@@ -38,20 +38,6 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     abra sin control.
   - **Impacto:** medio
 
-- [ ] **Desarrollar mobile obligatoriamente en todo el pipeline (no solo desktop)** · `origen: landing-crb` · `2026-07-17`
-  - **Contexto/gotcha:** el pipeline (ideate/build/critique) se centra en el viewport
-    de referencia DESKTOP; el mobile queda opcional/manual y se cuelan bugs de
-    responsive. Caso real en landing-crb: cards con foto de fondo que en desktop se
-    ven bien, pero al colapsar a 1 columna en mobile se aplastan a tiras, recortan a
-    los sujetos de la foto y el texto queda ilegible sobre zonas ocupadas. No hubo
-    ninguna barrera del pipeline que lo detectara antes del usuario.
-  - **Mejora propuesta:** mobile como ciudadano de primera clase: (1) `DESIGN.md`
-    guarda un viewport MOBILE junto al desktop de referencia; (2) `ideate` genera y
-    screenshotea cada dirección en desktop Y mobile por defecto; (3) `build` implementa
-    el `@media` mobile como parte del entregable, no como afterthought; (4) `critique`
-    FALLA si no hay evidencia (screenshot) mobile.
-  - **Impacto:** alto
-
 ## Hechas
 
 - [x] **Usar rama in-place por defecto; worktree solo bajo orden explícita** · `origen: landing-crb` · `2026-07-18` · `cerrada: 2026-07-18`
@@ -75,6 +61,24 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
   - **Nota para la #3:** esto reduce la mejora "Aislar y vigilar worktrees de ideación"
     a solo su parte de vigilancia (aviso de worktrees explícitos viejos en `doctor`),
     porque el worktree ya no es el default.
+  - **Impacto:** alto
+
+- [x] **Desarrollar mobile obligatoriamente en todo el pipeline (no solo desktop)** · `origen: landing-crb` · `2026-07-17` · `cerrada: 2026-07-18`
+  - **Contexto/gotcha:** el pipeline se centraba en el viewport DESKTOP; el mobile quedaba
+    opcional/manual y se colaban bugs de responsive (cards con foto de fondo que colapsan
+    a tiras en 1 columna, recortan sujetos, texto ilegible). Ninguna barrera lo detectaba.
+  - **Hallazgo clave:** el andamiaje mobile YA existía parcial pero era ciudadano de
+    segunda — opcional en `init`, ausente en `ideate`, tibio en `build`, sin poder de veto
+    en `critique`. El fix fue elevarlo a evidencia OBLIGATORIA en cada fase.
+  - **Resolución:** mobile como ciudadano de primera clase. (1) `init`: viewport mobile
+    REQUERIDO junto al desktop + breakpoint(s); `doctor` lo verifica. (2) `ideate`: cada
+    dirección se renderiza/screenshotea en desktop Y mobile; frames del preview sheet en
+    ambos con badge legible/ilegible por viewport (acá se caza el bug antes del código).
+    (3) `build`: el `@media` mobile es entregable + self-check mobile. (4) `review`: gate
+    bloqueante — sin evidencia mobile o con composición mobile rota, ITERA nunca PASA.
+    (5) `SKILL.md`: hard rule 11 "Mobile is first-class" + rule 3 reforzada + anti-pattern.
+    Tocado: `commands/{init,ideate,build,review,doctor}.md`, `skills/pipeline/SKILL.md`,
+    `docs/{que-es-y-por-que,referencia}.md`. Default mobile alineado a 390×844.
   - **Impacto:** alto
 
 - [x] **Limpiar worktrees al cerrar una exploración de ideas** · `origen: landing-crb` · `2026-07-16` · `cerrada: 2026-07-16`
