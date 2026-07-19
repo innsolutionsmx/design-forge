@@ -46,6 +46,12 @@ anything without asking — diagnose first.
    frontend-design skill active in this project. If found, WARN: design-forge assumes
    Impeccable as the single design authority; running two brains produces
    contradictory guidance. Recommend disabling the extras for this project.
+10. **Stale ideation worktrees** (hygiene): ideation runs in-place now, so worktrees are
+   opt-in only — any lingering `idea/*` worktree is likely a forgotten exploration eating
+   disk and cluttering the projects view. Run `git worktree list`; if any worktree is on
+   an `idea/*` branch, ⚠️ listing each (path + branch) and suggest `/design-forge:teardown`
+   to archive its mockups and remove it. If there are none, ✅ (nothing to clean). Warning
+   only, never an error — an intentional parallel worktree the user asked for is legitimate.
 
 ## Output
 

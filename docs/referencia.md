@@ -38,8 +38,9 @@ volver.
 ### `/design-forge:doctor`
 Diagnóstico: Impeccable (requerido), Playwright MCP, servidor HTTP estático, fallback
 Chrome headless, SkillUI/Stitch/21st.dev/webgpu (opcionales), PRODUCT/DESIGN.md
-completos, y **detección de cerebros de diseño en conflicto** (UI/UX Pro Max, Taste,
-frontend-design → warning).
+completos, **detección de cerebros de diseño en conflicto** (UI/UX Pro Max, Taste,
+frontend-design → warning), y **aviso de worktrees `idea/*` viejos** sin cerrar
+(sugiere `/design-forge:teardown`).
 
 ## Skill de doctrina: `design-pipeline`
 

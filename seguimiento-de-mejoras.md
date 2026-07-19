@@ -24,21 +24,26 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-- [ ] **Aislar y vigilar los worktrees de ideación (prevención)** · `origen: design-forge` · `2026-07-16`
+## Hechas
+
+- [x] **Aislar y vigilar los worktrees de ideación (prevención)** · `origen: design-forge` · `2026-07-16` · `cerrada: 2026-07-19`
   - **Contexto/gotcha:** la Fase 4 (teardown) ya limpia los worktrees `idea/*` sin
     perder trabajo, pero es CURATIVA — actúa cuando el residuo ya existe y quedó a la
     vista. Hoy los worktrees nacen como carpetas hermanas sueltas en `Proyectos/`
     (`<repo>-idea-*`), que ensucian la vista de proyectos, y nada avisa si una
     exploración quedó abierta y olvidada.
-  - **Mejora propuesta:** parte preventiva, complementa al teardown: (1) que `ideate`
-    cree los worktrees en `.worktrees/idea-*` (gitignored) dentro del repo en vez de
-    carpetas hermanas — agrupados y fuera de la vista; (2) un aviso (hook o chequeo en
-    `doctor`) que detecte worktrees `idea/*` viejos sin cerrar y sugiera
-    `/design-forge:teardown`. Igual que el teardown cierra el ciclo, esto evita que se
-    abra sin control.
+  - **Alcance reducido por la #2:** la mejora "in-place por defecto" sacó el worktree del
+    default, así que la parte (1) dejó de ser "el default ensucia todo" y quedó como
+    higiene del caso EXCEPCIONAL (worktree explícito). Se implementó el remanente real:
+  - **Resolución:** (1) cuando el usuario pide un worktree explícito, nace agrupado en
+    `.worktrees/idea-<name>` (gitignored) dentro del repo, no como carpeta hermana suelta
+    — `ideate.md` instruye agregar `.worktrees/` al `.gitignore` del proyecto; `teardown.md`
+    apunta al nuevo path y maneja el legacy sibling vía `git worktree list`. (2) nuevo
+    check #10 en `doctor` que corre `git worktree list` y avisa (⚠️, nunca error) de
+    cualquier worktree `idea/*` viejo, sugiriendo `/design-forge:teardown`. Se DESCARTÓ el
+    hook de sesión (infra invasiva injustificada con worktrees ya raros). Tocado:
+    `commands/{ideate,teardown,doctor}.md`, `docs/referencia.md`.
   - **Impacto:** medio
-
-## Hechas
 
 - [x] **Usar rama in-place por defecto; worktree solo bajo orden explícita** · `origen: landing-crb` · `2026-07-18` · `cerrada: 2026-07-18`
   - **Contexto/gotcha:** design-forge tiende a crear worktrees para aislar el trabajo,
