@@ -36,8 +36,14 @@ Before routing:
 Determine what the user actually brought:
 
 - **A concrete design** (a finished mockup image, an exact spec, "implementá ESTO") →
-  do NOT generate variations. Hand off directly to `/design-forge:build`. Generating
-  alternatives against a decided design is noise.
+  do NOT generate variations — the direction is already decided, so alternatives are
+  noise. But you STILL owe a **fidelity preview**: hand off to `/design-forge:build`,
+  then BEFORE finalizing render the built result at BOTH reference viewports (desktop
+  AND mobile) and show ONE frame side-by-side against the reference — the mockup/spec
+  as the "before", the built result as the "after" — and confirm the match with the
+  user. Never "implement directly" with no preview: the concrete case is exactly where
+  the build silently diverges from what was asked, and the fidelity preview is the only
+  net that catches it.
 - **A design request without a concrete design** (an idea, a direction, "mejorá el
   navbar") → comparative preview mode. Continue below.
 

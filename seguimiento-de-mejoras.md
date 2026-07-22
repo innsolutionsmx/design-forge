@@ -24,7 +24,28 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
+- [ ] **Amarrar el trigger de preview con un hook bundleado en el plugin (imagen/UI)** · `origen: landing-crb` · `2026-07-21`
+  - **Contexto/gotcha:** ofrecer el preview depende de que el agente se acuerde; una preferencia en memoria no amarra (se pierde en la compactación). El dev reporta que le construyo algo distinto a la referencia, o que me salto ofrecer opciones con decisión visual abierta.
+  - **Mejora propuesta:** hook `UserPromptSubmit` en `hooks/hooks.json` del plugin (activo en todo proyecto con design-forge, sin config per-proyecto; `${CLAUDE_PLUGIN_ROOT}` para scripts — verificado contra doc oficial). Reparto: el hook RECUERDA la disciplina (se re-inyecta por prompt → sobrevive compactación), el MODELO percibe la imagen. Protocolo de desambiguación: referencia→variaciones/fidelidad, asset→preview de encuadre, otra cosa→nada. Caveat a probar: si el adjunto de imagen llega al payload (`jq '.' >&2`).
+  - **Impacto:** alto
+
+- [ ] **Agregar preview de encuadre para assets (abanico de object-position)** · `origen: landing-crb` · `2026-07-21`
+  - **Contexto/gotcha:** al colocar fotos en contenedores `object-cover`, el agente adivina UN `object-position` y encuadra mal (cabeza cortada, sujeto arriba/abajo, horizonte partido), con personas Y paisajes. Causa raíz doble: (a) verificación ciega — screenshotear el `<img>` ignora el recorte CSS = falso OK; (b) adivina en vez de comparar.
+  - **Mejora propuesta:** reusar el mecanismo de preview in-place ya existente (ver `## Hechas` 2026-07-18), parametrizado sobre el crop — abanico de `object-position` (`top`/`center 30%`/`center`/`center 40%`) en el contenedor real, screenshot del DIV contenedor (NO del `<img>`) al aspect ratio real, el dev elige. Siempre que haya `object-cover`. Sin face-detection todavía (anti-sobreingeniería). Va en `commands/ideate.md`.
+  - **Impacto:** medio
+
+- [ ] **Amarrar la captura de mejoras con un hook que dispare la skill design-forge-mejora** · `origen: landing-crb` · `2026-07-22`
+  - **Contexto/gotcha:** la skill `design-forge-mejora` existe para registrar mejoras en el backlog central, pero NADA obliga a usarla. Caso real de esta sesión: surgió una mejora del plugin y el agente escribió en el archivo equivocado (`landing-crb/design/design-forge-gotchas.md`) en vez de invocar la skill. Una skill disponible no es un amarre — se olvida (mismo patrón preferencia-vs-hook que motiva la entrada del trigger de preview).
+  - **Mejora propuesta:** hook (bundleable en el propio plugin, `${CLAUDE_PLUGIN_ROOT}`) que detecte cuando surge una mejora/gotcha/limitación sobre design-forge e inyecte un recordatorio de invocar `design-forge-mejora` en modo SEMI. Sub-decisión abierta: si la skill de captura debería moverse al plugin para que hook+skill viajen juntos (hoy la skill es personal, el hook sería del plugin → acoplamiento).
+  - **Impacto:** medio
+
 ## Hechas
+
+- [x] **Corregir "diseño concreto → sin preview": el preview de fidelidad es obligatorio** · `origen: landing-crb` · `2026-07-21` · `cerrada: 2026-07-22`
+  - **Contexto/gotcha:** la regla actual (F6 "diseño concreto → implementar directo") saltea el preview cuando el dev pasa una referencia concreta. Caso real: es JUSTO ahí donde el agente a veces construye algo distinto a lo pedido, y saltear el preview saca la única red que atrapa esa divergencia.
+  - **Hallazgo clave:** el preview tenía DOS funciones fundidas en una sola regla — DECIDIR (qué dirección gana) y VERIFICAR FIDELIDAD (lo construido hace match con lo pedido). La regla concreta salteaba AMBAS; solo debía saltear la de decisión. Y la fase 3 (Critique) NO tapa el hueco: verifica CALIDAD, no FIDELIDAD contra la referencia concreta que trajo el dev.
+  - **Resolución:** se separaron las dos funciones. (1) `SKILL.md` hard rule 9: se nombra explícitamente la doble función del preview; con diseño concreto se saltean las VARIACIONES pero NUNCA el preview de fidelidad, y se prohíbe "implementar directo sin preview". (2) `commands/ideate.md` Step 0b: la ruta de diseño concreto ya no hace hand-off ciego a build — ahora debe renderizar el resultado construido en ambos viewports (desktop Y mobile) y mostrar UN frame lado a lado contra la referencia (mockup/spec = "before", construido = "after") y confirmar el match antes de finalizar. Sin infra nueva (reusa el preview in-place existente); no toca la fase 3. Tocado: `skills/pipeline/SKILL.md`, `commands/ideate.md`.
+  - **Impacto:** alto
 
 - [x] **Aislar y vigilar los worktrees de ideación (prevención)** · `origen: design-forge` · `2026-07-16` · `cerrada: 2026-07-19`
   - **Contexto/gotcha:** la Fase 4 (teardown) ya limpia los worktrees `idea/*` sin
