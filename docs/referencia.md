@@ -45,7 +45,7 @@ frontend-design → warning), y **aviso de worktrees `idea/*` viejos** sin cerra
 ## Skill de doctrina: `design-pipeline`
 
 Se auto-carga en cualquier tarea de UI del proyecto. Contiene el mapa de fases, el
-workflow canónico (cambios quirúrgicos por sección) y 10 hard rules; las claves:
+workflow canónico (cambios quirúrgicos por sección) y 11 hard rules; las claves:
 
 1. DESIGN.md es ley — sin tokens inventados inline.
 2. Un solo cerebro de diseño (Impeccable).
@@ -57,8 +57,13 @@ workflow canónico (cambios quirúrgicos por sección) y 10 hard rules; las clav
 7. El repo no es la verdad de la marca — vale el inventario de assets.
 8. Presupuesto vertical desde v1 (`clamp()`, `100svh`, fold intencional).
 9. **Never a bare render** — formato comparativo explícito + variación fresca siempre.
+   El preview cumple DOS funciones (decidir dirección Y verificar fidelidad); con diseño
+   concreto se saltean las variaciones, nunca el preview de fidelidad.
 10. **The preview must not lie** — verificación visual del render, especificidad CSS
     (`a.nav-cta`, no `.nav-cta`), ancho real.
+11. **Mobile is first-class** — viewport mobile obligatorio en DESIGN.md; cada fase con
+    evidencia visual renderiza desktop Y mobile; review FALLA (ITERA, nunca PASA) sin
+    evidencia mobile o con composición mobile rota.
 
 ## MCP bundleado
 
