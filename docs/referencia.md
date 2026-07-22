@@ -66,6 +66,18 @@ workflow canónico (cambios quirúrgicos por sección) y 10 hard rules; las clav
 screenshots, snapshot de accesibilidad, interacciones. Fallback sin él:
 `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
 
+## Hooks bundleados
+
+**Disciplina de preview** (`UserPromptSubmit`, `hooks/preview-discipline.sh`) — viaja
+con el plugin, cero config. Cuando un prompt huele a decisión visual (construir/cambiar
+UI, traer una referencia, colocar un asset), re-inyecta un recordatorio de la disciplina
+de preview: idea abierta → variaciones; referencia concreta → preview de fidelidad; asset
+→ preview de encuadre. Vive como hook —no como preferencia— porque una preferencia se
+pierde en la compactación y un hook se re-inyecta en cada prompt. El hook solo RECUERDA:
+no ve el adjunto de imagen (no llega a su payload), lo percibe el modelo. Es no-invasivo
+—dispara condicional a señales textuales y ante cualquier falla sale en silencio (nunca
+bloquea el prompt)—; si el pedido no es de diseño, se ignora.
+
 ## Prerequisitos externos (ver README para instalación)
 
 | Herramienta | Rol | ¿Obligatoria? |

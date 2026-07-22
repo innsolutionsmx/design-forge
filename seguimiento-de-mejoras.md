@@ -24,22 +24,24 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-- [ ] **Amarrar el trigger de preview con un hook bundleado en el plugin (imagen/UI)** · `origen: landing-crb` · `2026-07-21`
-  - **Contexto/gotcha:** ofrecer el preview depende de que el agente se acuerde; una preferencia en memoria no amarra (se pierde en la compactación). El dev reporta que le construyo algo distinto a la referencia, o que me salto ofrecer opciones con decisión visual abierta.
-  - **Mejora propuesta:** hook `UserPromptSubmit` en `hooks/hooks.json` del plugin (activo en todo proyecto con design-forge, sin config per-proyecto; `${CLAUDE_PLUGIN_ROOT}` para scripts — verificado contra doc oficial). Reparto: el hook RECUERDA la disciplina (se re-inyecta por prompt → sobrevive compactación), el MODELO percibe la imagen. Protocolo de desambiguación: referencia→variaciones/fidelidad, asset→preview de encuadre, otra cosa→nada. Caveat a probar: si el adjunto de imagen llega al payload (`jq '.' >&2`).
-  - **Impacto:** alto
-
 - [ ] **Agregar preview de encuadre para assets (abanico de object-position)** · `origen: landing-crb` · `2026-07-21`
   - **Contexto/gotcha:** al colocar fotos en contenedores `object-cover`, el agente adivina UN `object-position` y encuadra mal (cabeza cortada, sujeto arriba/abajo, horizonte partido), con personas Y paisajes. Causa raíz doble: (a) verificación ciega — screenshotear el `<img>` ignora el recorte CSS = falso OK; (b) adivina en vez de comparar.
   - **Mejora propuesta:** reusar el mecanismo de preview in-place ya existente (ver `## Hechas` 2026-07-18), parametrizado sobre el crop — abanico de `object-position` (`top`/`center 30%`/`center`/`center 40%`) en el contenedor real, screenshot del DIV contenedor (NO del `<img>`) al aspect ratio real, el dev elige. Siempre que haya `object-cover`. Sin face-detection todavía (anti-sobreingeniería). Va en `commands/ideate.md`.
   - **Impacto:** medio
 
-- [ ] **Amarrar la captura de mejoras con un hook que dispare la skill design-forge-mejora** · `origen: landing-crb` · `2026-07-22`
-  - **Contexto/gotcha:** la skill `design-forge-mejora` existe para registrar mejoras en el backlog central, pero NADA obliga a usarla. Caso real de esta sesión: surgió una mejora del plugin y el agente escribió en el archivo equivocado (`landing-crb/design/design-forge-gotchas.md`) en vez de invocar la skill. Una skill disponible no es un amarre — se olvida (mismo patrón preferencia-vs-hook que motiva la entrada del trigger de preview).
-  - **Mejora propuesta:** hook (bundleable en el propio plugin, `${CLAUDE_PLUGIN_ROOT}`) que detecte cuando surge una mejora/gotcha/limitación sobre design-forge e inyecte un recordatorio de invocar `design-forge-mejora` en modo SEMI. Sub-decisión abierta: si la skill de captura debería moverse al plugin para que hook+skill viajen juntos (hoy la skill es personal, el hook sería del plugin → acoplamiento).
-  - **Impacto:** medio
-
 ## Hechas
+
+- [x] **Amarrar el trigger de preview con un hook bundleado en el plugin (imagen/UI)** · `origen: landing-crb` · `2026-07-21` · `cerrada: 2026-07-22`
+  - **Contexto/gotcha:** ofrecer el preview depende de que el agente se acuerde; una preferencia en memoria no amarra (se pierde en la compactación). El dev reporta que le construyo algo distinto a la referencia, o que me salto ofrecer opciones con decisión visual abierta.
+  - **Hallazgo clave:** verificado contra doc oficial (agente claude-code-guide) — los adjuntos de imagen NO llegan al payload del hook (solo `prompt`, `session_id`, `cwd`). Eso CONFIRMA el reparto propuesto: el hook no puede "ver" la imagen, así que su único trabajo es RECORDAR la disciplina; el MODELO percibe el adjunto y decide qué preview aplica. Caveat cerrado.
+  - **Resolución:** hook `UserPromptSubmit` BUNDLEADO en el plugin (`hooks/hooks.json` + `hooks/preview-discipline.sh`, referenciado desde `plugin.json` con `"hooks": "hooks/hooks.json"` y `${CLAUDE_PLUGIN_ROOT}`). Se activa en todo proyecto con design-forge, sin config per-proyecto. Dispara CONDICIONAL por señales textuales de trabajo visual (umbral bajo, bilingüe ES/EN; preferimos falso positivo a falso negativo), e inyecta `additionalContext` con el protocolo de desambiguación (idea→variaciones / referencia→fidelidad / asset→encuadre). Defensivo: sin jq o ante cualquier falla → exit 0 silencioso, nunca bloquea. Probado con 6 casos (dispara/no-dispara/sin-prompt). Tocado: `hooks/hooks.json` (nuevo), `hooks/preview-discipline.sh` (nuevo), `.claude-plugin/plugin.json`.
+  - **Impacto:** alto
+
+- [x] **Amarrar la captura de mejoras con un hook que dispare la skill design-forge-mejora** · `origen: landing-crb` · `2026-07-22` · `cerrada: 2026-07-22`
+  - **Contexto/gotcha:** la skill `design-forge-mejora` existe para registrar mejoras en el backlog central, pero NADA obliga a usarla. Caso real: surgió una mejora del plugin y el agente escribió en el archivo equivocado (`landing-crb/design/design-forge-gotchas.md`) en vez de invocar la skill. Una skill disponible no es un amarre — se olvida.
+  - **Decisión de scope:** el hook va LOCAL al repo design-forge (`.claude/hooks/`), NO bundleado en el plugin. Razón: recordar "capturá una mejora del plugin" solo le sirve a quien desarrolla/dogfoodea el plugin, no al usuario final que solo diseña UIs (para él sería ruido: no tiene el backlog ni le importa). Al quedar local, se cae la sub-decisión abierta: la skill `design-forge-mejora` sigue siendo personal, no se mueve al plugin.
+  - **Resolución:** hook `UserPromptSubmit` local (`.claude/hooks/mejora-capture.sh`, registrado en `.claude/settings.json` junto al SessionStart existente). Dispara cuando el prompt trae una señal de mejora/gotcha/limitación del plugin e inyecta `additionalContext` recordando invocar `design-forge-mejora` en modo SEMI. Mismo patrón defensivo que el #2 (exit 0 silencioso ante fallas). Probado (dispara con "esto es una mejora para el plugin"; NO dispara con "bug del login"). Tocado: `.claude/hooks/mejora-capture.sh` (nuevo), `.claude/settings.json`.
+  - **Impacto:** medio
 
 - [x] **Corregir "diseño concreto → sin preview": el preview de fidelidad es obligatorio** · `origen: landing-crb` · `2026-07-21` · `cerrada: 2026-07-22`
   - **Contexto/gotcha:** la regla actual (F6 "diseño concreto → implementar directo") saltea el preview cuando el dev pasa una referencia concreta. Caso real: es JUSTO ahí donde el agente a veces construye algo distinto a lo pedido, y saltear el preview saca la única red que atrapa esa divergencia.
