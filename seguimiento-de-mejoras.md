@@ -24,12 +24,12 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-- [ ] **Agregar preview de encuadre para assets (abanico de object-position)** · `origen: landing-crb` · `2026-07-21`
-  - **Contexto/gotcha:** al colocar fotos en contenedores `object-cover`, el agente adivina UN `object-position` y encuadra mal (cabeza cortada, sujeto arriba/abajo, horizonte partido), con personas Y paisajes. Causa raíz doble: (a) verificación ciega — screenshotear el `<img>` ignora el recorte CSS = falso OK; (b) adivina en vez de comparar.
-  - **Mejora propuesta:** reusar el mecanismo de preview in-place ya existente (ver `## Hechas` 2026-07-18), parametrizado sobre el crop — abanico de `object-position` (`top`/`center 30%`/`center`/`center 40%`) en el contenedor real, screenshot del DIV contenedor (NO del `<img>`) al aspect ratio real, el dev elige. Siempre que haya `object-cover`. Sin face-detection todavía (anti-sobreingeniería). Va en `commands/ideate.md`.
-  - **Impacto:** medio
-
 ## Hechas
+
+- [x] **Agregar preview de encuadre para assets (abanico de object-position)** · `origen: landing-crb` · `2026-07-21` · `cerrada: 2026-07-22`
+  - **Contexto/gotcha:** al colocar fotos en contenedores `object-cover`, el agente adivina UN `object-position` y encuadra mal (cabeza cortada, sujeto arriba/abajo, horizonte partido), con personas Y paisajes. Causa raíz doble: (a) verificación ciega — screenshotear el `<img>` ignora el recorte CSS = falso OK; (b) adivina en vez de comparar.
+  - **Resolución:** nuevo paso 8 en `commands/ideate.md` ("Encuadre de assets en `object-cover`") que reusa el sustrato de preview in-place parametrizado sobre el crop: abanico de `object-position` (`top`/`center 25%`/`center`/`center 75%`/`bottom`, ajustable) sobre el contenedor REAL, screenshot del `<div>` contenedor (NUNCA del `<img>`) al aspect ratio real, en desktop Y mobile (el crop rompe distinto por viewport — puede necesitar `object-position` propio en `@media`), el dev elige y se fija el valor. Sin face-detection (anti-sobreingeniería). Refuerzo en el paso 7 (verify): ataca la causa (a) remitiendo al paso 8 y prohibiendo screenshotear el `<img>`. Renumerados los pasos siguientes (iterate/pick/teardown → 9/10/11). Conecta con el hook #2, que ya anticipa "asset → preview de encuadre". Tocado: `commands/ideate.md`.
+  - **Impacto:** medio
 
 - [x] **Amarrar el trigger de preview con un hook bundleado en el plugin (imagen/UI)** · `origen: landing-crb` · `2026-07-21` · `cerrada: 2026-07-22`
   - **Contexto/gotcha:** ofrecer el preview depende de que el agente se acuerde; una preferencia en memoria no amarra (se pierde en la compactación). El dev reporta que le construyo algo distinto a la referencia, o que me salto ofrecer opciones con decisión visual abierta.
