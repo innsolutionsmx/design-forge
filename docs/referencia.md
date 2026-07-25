@@ -45,7 +45,7 @@ frontend-design → warning), y **aviso de worktrees `idea/*` viejos** sin cerra
 ## Skill de doctrina: `design-pipeline`
 
 Se auto-carga en cualquier tarea de UI del proyecto. Contiene el mapa de fases, el
-workflow canónico (cambios quirúrgicos por sección) y 10 hard rules; las claves:
+workflow canónico (cambios quirúrgicos por sección) y 11 hard rules; las claves:
 
 1. DESIGN.md es ley — sin tokens inventados inline.
 2. Un solo cerebro de diseño (Impeccable).
@@ -57,14 +57,31 @@ workflow canónico (cambios quirúrgicos por sección) y 10 hard rules; las clav
 7. El repo no es la verdad de la marca — vale el inventario de assets.
 8. Presupuesto vertical desde v1 (`clamp()`, `100svh`, fold intencional).
 9. **Never a bare render** — formato comparativo explícito + variación fresca siempre.
+   El preview cumple DOS funciones (decidir dirección Y verificar fidelidad); con diseño
+   concreto se saltean las variaciones, nunca el preview de fidelidad.
 10. **The preview must not lie** — verificación visual del render, especificidad CSS
     (`a.nav-cta`, no `.nav-cta`), ancho real.
+11. **Mobile is first-class** — viewport mobile obligatorio en DESIGN.md; cada fase con
+    evidencia visual renderiza desktop Y mobile; review FALLA (ITERA, nunca PASA) sin
+    evidencia mobile o con composición mobile rota.
 
 ## MCP bundleado
 
 **Playwright** (`@playwright/mcp`) — viaja con el plugin, cero config: navegación,
 screenshots, snapshot de accesibilidad, interacciones. Fallback sin él:
 `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
+
+## Hooks bundleados
+
+**Disciplina de preview** (`UserPromptSubmit`, `hooks/preview-discipline.sh`) — viaja
+con el plugin, cero config. Cuando un prompt huele a decisión visual (construir/cambiar
+UI, traer una referencia, colocar un asset), re-inyecta un recordatorio de la disciplina
+de preview: idea abierta → variaciones; referencia concreta → preview de fidelidad; asset
+→ preview de encuadre. Vive como hook —no como preferencia— porque una preferencia se
+pierde en la compactación y un hook se re-inyecta en cada prompt. El hook solo RECUERDA:
+no ve el adjunto de imagen (no llega a su payload), lo percibe el modelo. Es no-invasivo
+—dispara condicional a señales textuales y ante cualquier falla sale en silencio (nunca
+bloquea el prompt)—; si el pedido no es de diseño, se ignora.
 
 ## Prerequisitos externos (ver README para instalación)
 

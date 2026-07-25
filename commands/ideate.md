@@ -36,8 +36,14 @@ Before routing:
 Determine what the user actually brought:
 
 - **A concrete design** (a finished mockup image, an exact spec, "implementá ESTO") →
-  do NOT generate variations. Hand off directly to `/design-forge:build`. Generating
-  alternatives against a decided design is noise.
+  do NOT generate variations — the direction is already decided, so alternatives are
+  noise. But you STILL owe a **fidelity preview**: hand off to `/design-forge:build`,
+  then BEFORE finalizing render the built result at BOTH reference viewports (desktop
+  AND mobile) and show ONE frame side-by-side against the reference — the mockup/spec
+  as the "before", the built result as the "after" — and confirm the match with the
+  user. Never "implement directly" with no preview: the concrete case is exactly where
+  the build silently diverges from what was asked, and the fidelity preview is the only
+  net that catches it.
 - **A design request without a concrete design** (an idea, a direction, "mejorá el
   navbar") → comparative preview mode. Continue below.
 
@@ -152,22 +158,45 @@ Determine whether the brief targets an EXISTING section of the site:
      cards, cropped photo subjects, and text buried over a busy zone. Never trust that
      "the CSS looks right". A preview that hides a broken mobile state sells a false
      decision just as much as a broken desktop one.
+   - **Fotos en `object-cover`: no adivines el encuadre acá.** If a variation crops a
+     photo to fill a box, its `object-position` is a decision resolved in step 8 (framing
+     preview) — and you verify the CONTAINER, never the `<img>` (capturing the `<img>`
+     shows the full photo and hides the CSS crop = false OK).
    - Show the sheet AS SOON as it's ready, and the user's verdict happens on the LIVE
      URL in their own browser: always run `open <url>` for them, AND print each URL on
      its own line inside a code block — never inline in prose (terminal truncation
      corrupts copied URLs into 404s).
 
-8. Iterate v2, v3… on the variations the user reacts to, same rules (baseline
+8. **Encuadre de assets en `object-cover`.** Whenever a variation places a photo in an
+   `object-cover` container, the crop is a DECISION, not a guess — a single guessed
+   `object-position` decapitates people and splits horizons, and screenshotting the
+   `<img>` hides it. Resolve it with a framing preview that reuses the same in-place
+   substrate, parametrized over the crop:
+   - **Abanico de `object-position` on the REAL container.** Render the same photo in the
+     same box at a fan of positions — `top`, `center 25%`, `center`, `center 75%`,
+     `bottom` (a sensible default; adjust to the subject). One frame per position.
+   - **Screenshot the CONTAINER, never the `<img>`.** Capture the container `<div>` at its
+     REAL aspect ratio, so what you verify is exactly the crop the user will see — not the
+     full uncropped photo.
+   - **Desktop AND mobile.** The crop breaks DIFFERENTLY per viewport: the container's
+     aspect ratio changes, so a face that fits the desktop cover gets decapitated in the
+     mobile one. Fan BOTH viewports (hard rule 11); the encuadre may need a different
+     `object-position` on mobile via `@media`.
+   - **El dev elige**; fix the chosen `object-position` in the component (and record it in
+     DESIGN.md when the container is reusable). No face-detection — comparing beats
+     guessing, and the fan is cheap.
+
+9. Iterate v2, v3… on the variations the user reacts to, same rules (baseline
    comparison, explicit format, real contexts, real width, live URL).
 
-9. When the user picks the winner ("esta es"): implement it in the real project
+10. When the user picks the winner ("esta es"): implement it in the real project
    (phase 2, on a `feat/*` branch), and update DESIGN.md with any decisions the winning
    direction introduced. The non-winning previews are **ephemeral** — they live in the
    gitignored preview area (or `design/ideas/`), not as permanent inventory. Don't delete
    them mid-decision (the user may still want to A/B), but they're meant to be torn down
    once the winner lands.
 
-10. **Close the exploration when it's truly over.** Once the winner has landed and the
+11. **Close the exploration when it's truly over.** Once the winner has landed and the
     runner-ups are no longer needed, run `/design-forge:teardown` — it archives the
     preview mockups (so untracked work isn't lost) and removes the gitignored preview
     area (or, if the user explicitly created worktrees, the `idea/*` worktrees and

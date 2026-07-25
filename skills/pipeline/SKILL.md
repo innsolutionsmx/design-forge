@@ -73,8 +73,14 @@ full-site redesigns:
    comparative format: case badge (A/B/C) + title + status chip (`Recomendado` /
    `Variación fresca` / `Riesgo`) + 1–2 line description with the tradeoff + frames
    with context captions and a legible/ilegible badge. And always include at least
-   one fresh direction of your own beyond the literal ask — if the user brought a
-   CONCRETE design to implement, skip variations entirely and build it.
+   one fresh direction of your own beyond the literal ask. **The preview does two
+   jobs — DECIDE (which direction wins) and VERIFY FIDELITY (the built result matches
+   what was asked).** If the user brought a CONCRETE design to implement, skip the
+   variations (the decide job is already settled) — but NEVER skip the fidelity
+   preview: build it, then show ONE render of the result against the reference and
+   confirm the match before finalizing. "Implement directly with no preview" is
+   banned; the concrete case is exactly where the build silently diverges from the
+   ask, and the fidelity preview is the only net that catches it.
 10. **The preview must not lie.** Verify every render visually before showing it —
    CSS specificity can leave text invisible while the CSS "looks right" (`.nav-links a`
    at (0,2,1) beats `.nav-cta` at (0,2,0); write `a.nav-cta`). Render frames at the
