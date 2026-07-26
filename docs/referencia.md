@@ -60,7 +60,14 @@ workflow canónico (cambios quirúrgicos por sección) y 11 hard rules; las clav
    El preview cumple DOS funciones (decidir dirección Y verificar fidelidad); con diseño
    concreto se saltean las variaciones, nunca el preview de fidelidad.
 10. **The preview must not lie** — verificación visual del render, especificidad CSS
-    (`a.nav-cta`, no `.nav-cta`), ancho real.
+    (`a.nav-cta`, no `.nav-cta`), ancho real. La verificación es QA interno: se DELEGA a un
+    subagente que devuelve veredicto `legible`/`ilegible` en texto; los screenshots quedan
+    en cuarentena y no contaminan al orquestador (ideate paso 7). Un verificador pasivo hace
+    rubber-stamp: el overflow horizontal se caza determinísticamente (`scrollWidth >
+    clientWidth`) y todo `go` debe sobrevivir un pase adversarial de refutación. Renderizá
+    mobile al ancho REAL — headless `--window-size` clampea `innerWidth` a ~500 y recorta
+    (clips falsos); usá Playwright o un iframe de ancho forzado. Si gate y ojo discrepan,
+    gana el gate.
 11. **Mobile is first-class** — viewport mobile obligatorio en DESIGN.md; cada fase con
     evidencia visual renderiza desktop Y mobile; review FALLA (ITERA, nunca PASA) sin
     evidencia mobile o con composición mobile rota.
