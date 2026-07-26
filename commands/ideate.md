@@ -141,31 +141,73 @@ Determine whether the brief targets an EXISTING section of the site:
    A bare render with no badge/title/description is FORBIDDEN — the user must be able
    to compare with their eyes without imagining anything.
 
-7. Serve, render, verify, show:
+7. Serve, then **delegate** the render + visual verification, then show. The visual pass
+   is INTERNAL QA — the human decides on the LIVE URL, never on a screenshot the agent
+   read — so the pixels belong in a throwaway subagent context, not in the orchestrator's.
+
+   **a) Serve (orchestrator).**
    - **Live dev stack substrate:** the running stack already serves the preview routes —
      use its URL (`http://localhost:<port>/dev/<name>-preview`). No extra server.
    - **Static substrate:** the Playwright MCP blocks `file://`. Serve the repo root (or
      `design/ideas/`) over HTTP: `python3 -m http.server 8899` (or `npx serve`).
-   - Render the preview sheet to image with Playwright at BOTH the desktop and the mobile
-     reference viewport — one capture per viewport, so the mobile composition is verified
-     with the same rigor as desktop. If the Playwright MCP is unavailable, fall back to
-     Chrome headless: `chrome --headless=new --screenshot=out.png --window-size=<W>,<H> <url>`
-     (run it once per viewport size) and Read each resulting image.
-   - Before any fullPage capture, scroll through the page in steps with short delays
-     so on-scroll reveals have fired.
-   - **Verify the render visually before showing it** — look at BOTH images yourself:
-     invisible text, broken states, false overflows on desktop; and on mobile, collapsed
-     cards, cropped photo subjects, and text buried over a busy zone. Never trust that
-     "the CSS looks right". A preview that hides a broken mobile state sells a false
-     decision just as much as a broken desktop one.
-   - **Fotos en `object-cover`: no adivines el encuadre acá.** If a variation crops a
-     photo to fill a box, its `object-position` is a decision resolved in step 8 (framing
-     preview) — and you verify the CONTAINER, never the `<img>` (capturing the `<img>`
-     shows the full photo and hides the CSS crop = false OK).
-   - Show the sheet AS SOON as it's ready, and the user's verdict happens on the LIVE
-     URL in their own browser: always run `open <url>` for them, AND print each URL on
-     its own line inside a code block — never inline in prose (terminal truncation
-     corrupts copied URLs into 404s).
+
+   **b) Delegate the visual verification to a subagent (Task/Agent tool) — do NOT read the
+   screenshots yourself.** Each fullPage capture is image tokens (one per viewport, more as
+   real contexts multiply); reading them inline balloons the orchestrator context with
+   pixels it does not need. A read-only / verification agent type is ideal — it only
+   inspects, never edits the mockup. Launch ONE subagent per preview sheet with this
+   contract:
+   - **Give it:** the served preview URL, the desktop reference viewport (W×H) and the
+     mobile reference viewport (W×H), the real contexts from DESIGN.md, and the
+     broken-state checklist below.
+   - **It must, PER viewport, in this order:**
+     1. **Deterministic overflow gate FIRST — trust it OVER your eyes.** Evaluate in the
+        page `document.documentElement.scrollWidth > document.documentElement.clientWidth`
+        (and the same on any container that must not scroll). This is the ground truth for
+        horizontal overflow — a passive eye both MISSES real clipping AND invents clipping
+        that isn't there. If the gate is `true` → the layout overflows → `ilegible` with the
+        offending element. If the gate is `false` but a screenshot *looks* clipped, the
+        overflow is NOT real — suspect the render harness (next point), not the CSS. Golden
+        rule: **when the gate and the eye disagree, the gate wins.**
+     2. **Render at the REAL viewport — the mobile harness lies by default.** Prefer the
+        Playwright MCP: it renders mobile at the TRUE width (device emulation /
+        `browser_resize`). Chrome headless `--window-size=<W>,<H>` is UNRELIABLE for mobile —
+        it clamps `window.innerWidth` to ~500px yet crops the screenshot to the requested
+        width, manufacturing fake "clipped content" on the right edge (this exact artifact
+        sent two hardened verifiers, and a human ground-truth, chasing a CSS bug that did not
+        exist). So when you fall back to headless, FIRST assert `window.innerWidth === <target
+        W>`; if it does not match, the capture is INVALID for that viewport — render mobile
+        inside a `<W>px` iframe (which forces the true width) and screenshot that instead.
+        Only once the viewport is real: scroll in steps with short delays so on-scroll
+        reveals have fired, then LOOK at every image.
+   - **Broken-state checklist:** invisible text; broken states; **any element or text
+     clipped at, or overflowing, the viewport edge — on BOTH desktop AND mobile** (not a
+     desktop-only concern); collapsed cards, cropped photo subjects, and text buried over a
+     busy zone on mobile. For a photo in `object-cover`, verify the CONTAINER at its real
+     aspect ratio, never the `<img>` (capturing the `<img>` shows the full photo and hides
+     the CSS crop = false OK); the crop itself is a decision resolved in step 8.
+   - **It returns TEXT ONLY — never the images.** A structured verdict: per variation, per
+     real context, per viewport → `legible` / `ilegible`, and for each `ilegible` the
+     specific issue and where it is (selector / area) so a fix needs no pixels. A header
+     line reporting how many captures it inspected ("cuarentené N capturas") — that count
+     is the visible proof the image tokens stayed OUT of the orchestrator. And a final
+     `go` / `no-go`.
+   - **Adversarial second pass on every `go` — a `go` is the dangerous verdict.** A single
+     passive verifier defaults to `go` and rubber-stamps. When the first subagent returns
+     `go`, launch a SECOND, independent subagent that starts from the OPPOSITE prior:
+     "assume something IS broken; your job is to REFUTE the go — find the clipped text, the
+     illegible frame, the decapitated crop." Only a `go` that SURVIVES the refute pass
+     counts. (When the first returns `no-go`, skip the refute — you already have fixes.)
+   - **On `no-go` (from either pass):** fix the reported issue in the mockup (orchestrator
+     inline, or delegate the fix), then re-launch verification. Loop until a refute-surviving
+     `go` — every round's pixels stay quarantined in a fresh subagent context.
+
+   **c) Show (orchestrator), only once the verdict is `go`.** Never show the user a sheet
+   that failed internal QA — a preview that hides a broken mobile state sells a false
+   decision as much as a broken desktop one. Show the sheet AS SOON as it passes: the
+   user's verdict happens on the LIVE URL in their own browser. Always run `open <url>` for
+   them, AND print each URL on its own line inside a code block — never inline in prose
+   (terminal truncation corrupts copied URLs into 404s).
 
 8. **Encuadre de assets en `object-cover`.** Whenever a variation places a photo in an
    `object-cover` container, the crop is a DECISION, not a guess — a single guessed
