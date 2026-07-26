@@ -84,7 +84,15 @@ full-site redesigns:
 10. **The preview must not lie.** Verify every render visually before showing it —
    CSS specificity can leave text invisible while the CSS "looks right" (`.nav-links a`
    at (0,2,1) beats `.nav-cta` at (0,2,0); write `a.nav-cta`). Render frames at the
-   real target width, never narrow columns (narrow crops fake overflows).
+   real target width, never narrow columns (narrow crops fake overflows). That visual
+   pass is INTERNAL QA (the human decides on the live URL, not on a screenshot the agent
+   read), so DELEGATE it to a subagent that returns a `legible`/`ilegible` text verdict —
+   the screenshots stay quarantined in the subagent and never enter the orchestrator
+   context (ideate step 7). A single passive verifier rubber-stamps `go`: catch horizontal
+   overflow deterministically (`scrollWidth > clientWidth`, not by eye) and make every `go`
+   survive an adversarial refute pass before it counts. Render mobile at the TRUE width —
+   headless `--window-size` clamps `innerWidth` to ~500 and crops, faking clips; use
+   Playwright or a forced-width iframe, and when gate and eye disagree, the gate wins.
 11. **Mobile is first-class, not an afterthought.** DESIGN.md records a mandatory mobile
    viewport alongside desktop. Every phase that produces visual evidence renders desktop
    AND mobile: ideation frames both, build ships the `@media` mobile with the component,
