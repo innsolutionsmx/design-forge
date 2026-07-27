@@ -11,7 +11,18 @@
 - **Fecha**: 2026-07-26
 - **Máquina**: Mac (oficina)
 - **Rama actual**: `main` (post-release)
-- **Última acción**: **RELEASE v0.6.0 a `main`**: contrato ENDURECIDO del paso 7 de
+- **Última acción**: **HOTFIX v0.6.1 a `main`**: la v0.6.0 se publicó con un
+  `.claude-plugin/plugin.json` INVÁLIDO — traía `"hooks": "hooks/hooks.json"`, pero Claude
+  Code ya carga ese archivo por convención, así que declararlo tira
+  `Validation errors: hooks: Invalid input` y **el plugin entero queda en `failed to load`**
+  (se cae con sus skills, comandos y MCP servers). Detectado al intentar actualizar
+  design-forge desde landing-crb (v0.4.0 → v0.6.0). Regla dura: `manifest.hooks` solo
+  referencia archivos de hooks **ADICIONALES**, nunca el estándar `hooks/hooks.json`
+  (contrastado contra `hookify`, `claude-security` y `ralph-loop` de Anthropic: ninguno lo
+  declara). Fix = eliminar la clave. Queda **PENDIENTE** el check preventivo de manifest en
+  `/design-forge:doctor` (anotado en `seguimiento-de-mejoras.md`), porque hoy el release no
+  tiene ningún gate que valide el manifest antes de publicar.
+- **Acción previa**: **RELEASE v0.6.0 a `main`**: contrato ENDURECIDO del paso 7 de
   `ideate`. La verificación visual del preview se **DELEGA a un subagente** que devuelve
   veredicto en TEXTO (screenshots cuarentenados fuera del contexto del orquestador — ahorro
   de tokens), con 3 capas: (1) **gate determinístico** de overflow (`scrollWidth>clientWidth`)
@@ -29,7 +40,7 @@
 
 ## Estado del plugin
 
-- **Publicado en `main`**: v0.6.0 — pipeline 4 fases (init/ideate/build/review) +
+- **Publicado en `main`**: v0.6.1 — pipeline 4 fases (init/ideate/build/review) +
   teardown, mobile first-class (hard rule 11), preview de fidelidad + preview de encuadre,
   **verificación del paso 7 DELEGADA a subagente endurecido** (gate determinístico + pase
   adversarial + harness mobile confiable), 2 hooks `UserPromptSubmit` (uno bundleado, uno
