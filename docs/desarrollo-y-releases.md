@@ -42,6 +42,7 @@ el scroll-through pre-screenshot y la disciplina de especificidad CSS.
 | El diagnóstico | `commands/doctor.md` |
 | Una regla que aplique SIEMPRE (aunque no se invoque comando) | `skills/pipeline/SKILL.md` (hard rules / doctrina) |
 | El MCP bundleado | `mcpServers` en `.claude-plugin/plugin.json` |
+| Lo que se valida antes de publicar | `scripts/validate-manifest.sh` (gate) |
 | El onboarding para agentes | `SETUP.md` (+ blockquote del README) |
 
 Regla de reparto: si es procedimiento de UNA fase → comando; si es criterio
@@ -50,11 +51,27 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
 
 ## Cómo se hace una release
 
+0. **Validar el manifest** — `bash scripts/validate-manifest.sh`. Gate determinístico:
+   JSON parseable, `name`/`version` presentes y semver, ninguna ruta declarada que no
+   exista, y —el bug que lo motivó— la clave `hooks` NO apuntando al estándar
+   `hooks/hooks.json` (Claude Code ya lo carga por convención; declararlo es inválido y
+   rompe la carga del plugin ENTERO). Sale 0 = publicable, 1 = no.
 1. **Bump de versión** en `.claude-plugin/plugin.json` (semver: fix = patch,
    feature = minor, incompatible = major). Sin bump NO hay distribución — el cache de
    plugins es por versión.
 2. Merge `dev` → `main` y push.
-3. Los proyectos con `autoUpdate: true` la reciben en su próxima sesión.
+3. **Gate manual**: `claude plugin list` sobre la versión candidata debe decir
+   `✔ enabled`. Un `✘ failed to load` acá es un release que se lleva puestos los
+   skills, comandos y MCP servers de todos los proyectos que lo consumen.
+4. Los proyectos con `autoUpdate: true` la reciben en su próxima sesión.
+
+El paso 0 no depende de tu memoria: `.claude/hooks/pre-release-guard.sh` (`PreToolUse`
+sobre `Bash`, registrado en `.claude/settings.json`) corre el validador solo ante
+`git merge` / `git tag` / `git push` y **bloquea** la operación si el manifest está
+roto. Disparo ancho, bloqueo angosto: valida seguido, frena sólo cuando hay error real.
+Por qué un hook y no un check que haya que invocar: este repo ya aprendió dos veces que
+*una skill disponible no es un amarre — se olvida*. La v0.6.0 salió rota justamente
+porque el gate no existía y nadie se acordó de mirar.
 
 **No requiere bump**: `docs/`, `SETUP.md`, `README.md`, `.claude/settings.json` del
 repo, `ai/context/` (no viajan al consumidor — se sirven raw desde main o son locales).
