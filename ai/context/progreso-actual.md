@@ -8,10 +8,32 @@
 
 ## Última actualización
 
-- **Fecha**: 2026-07-26
+- **Fecha**: 2026-08-03
 - **Máquina**: Mac (oficina)
-- **Rama actual**: `main` (post-release)
-- **Última acción**: **HOTFIX v0.6.1 a `main`**: la v0.6.0 se publicó con un
+- **Rama actual**: `feat/fold-dos-estados` (sobre `dev`; `dev` tiene el gate del manifest ya integrado, SIN pushear)
+- **Última acción**: **BACKLOG EN CERO — dos batches.**
+  **(1) Gate del manifest (sin release, no toca `commands/`)**: `scripts/validate-manifest.sh`
+  (determinístico, exit 0/1: JSON parseable, `name`/`version` semver, rutas declaradas
+  existentes, y la clave `hooks` NUNCA apuntando al estándar `hooks/hooks.json`) + hook LOCAL
+  `.claude/hooks/pre-release-guard.sh` (`PreToolUse`/Bash) que lo corre ante
+  `git merge`/`tag`/`push` y **bloquea con exit 2**. Se DESCARTÓ ponerlo en `doctor` como
+  amarre: un check que hay que acordarse de invocar es la misma clase de falla que se estaba
+  arreglando (el gotcha decía "NADIE lo detectó"). El `doctor` quedó sólo como diagnóstico.
+  Postura invertida respecto de los otros hooks del repo: éste bloquea también cuando NO puede
+  validar — un gate que falla en silencio da confianza falsa. `docs/desarrollo-y-releases.md`:
+  la release pasa de 3 pasos a 5.
+  **(2) Viewport mobile como RANGO (release 0.7.0, PENDIENTE de merge a `main`)**: cierra las
+  dos entradas del fold. DESIGN.md registra alto útil/fold Y alto del dispositivo (medidos en
+  el teléfono, `window.innerHeight`; el ~87.5% es default `estimado`); `ideate` rinde SIEMPRE
+  dos frames mobile con el iframe dimensionado al alto real de cada estado —así `svh` resuelve
+  como en el teléfono SIN parche, y `--fold` quedó como conveniencia, no como mecanismo— más
+  la **tabla de fold** del verificador (`getBoundingClientRect().bottom` contra el fold por
+  estado + DIFF entre estados); `review` falla también con evidencia en UNA sola altura;
+  reglas 8 y 11 de `SKILL.md` extendidas (no se agregó una regla 12: son caras). Colgado del
+  mismo release, el check 11 del manifest en `doctor`.
+  **Falta**: pushear `dev`, mergear a `main`, y `claude plugin list` → `✔ enabled` como gate
+  manual. **NO validado aún en corrida real** (regla de proceso 3).
+- **Acción previa**: **HOTFIX v0.6.1 a `main`**: la v0.6.0 se publicó con un
   `.claude-plugin/plugin.json` INVÁLIDO — traía `"hooks": "hooks/hooks.json"`, pero Claude
   Code ya carga ese archivo por convención, así que declararlo tira
   `Validation errors: hooks: Invalid input` y **el plugin entero queda en `failed to load`**
@@ -45,11 +67,19 @@
   **verificación del paso 7 DELEGADA a subagente endurecido** (gate determinístico + pase
   adversarial + harness mobile confiable), 2 hooks `UserPromptSubmit` (uno bundleado, uno
   local al repo), doctrina de 11 hard rules, Playwright MCP bundleado.
+- **En `dev`, sin publicar**: v0.7.0 — viewport mobile como RANGO (dos frames mobile siempre
+  + tabla de fold medida + gate de review por altura única) y check 11 de manifest en
+  `doctor`. Más el gate de release (script + hook local), que NO viaja al consumidor.
 - **Proceso de release**: cambios en rama → merge a `dev` → promoción a `main` + bump
   de versión SOLO por decisión explícita del owner (main = lo que consumen los proyectos).
 
 ## Próximos pasos
 
+- [ ] **Cerrar el release 0.7.0**: pushear `dev`, merge a `main`, y `claude plugin list`
+  sobre la candidata exigiendo `✔ enabled` (paso 3 del proceso).
+- [ ] **Validar 0.7.0 en corrida real** (regla de proceso 3, la feature no está cerrada sin
+  esto): la próxima ideación con mobile debe producir los dos frames y la tabla de fold, y el
+  número del alto útil tiene que salir MEDIDO del teléfono, no del default del 87.5%.
 - [ ] **Portar el rediseño split de "Nosotros" a landing-crb** (validado en scratchpad en
   v0.6.0, aún NO portado): componente Blade honrando Tailwind v4 + DaisyUI, copiar
   `img/1.jpg,2.png,3.JPG`, encuadre carrera de colores `object-position: 30% center`.

@@ -43,6 +43,16 @@ PASA**. "Se ve bien en desktop" is not a pass: a design is responsive-complete a
 desktop AND mobile, or it iterates. This is the barrier that would have caught the
 landing-crb cards collapsing to strips before the user did.
 
+**One viewport height is not mobile evidence (blocking).** The mobile viewport is a range:
+capture and judge at BOTH heights recorded in DESIGN.md — `alto útil / fold` (URL bar
+expanded, what the user sees on landing) and `alto del dispositivo` (bar collapsed). For
+each, measure the decisive elements against the fold with `getBoundingClientRect().bottom`
+and report the numbers, plus the diff between the two states. An element that shifts when
+the bar collapses is a finding. Evidence at a single height → **ITERA**, same as no mobile
+evidence at all: a carousel approved on the numbers of one state shipped with its controls
+jumping 107px in the other, and the user found it on their phone after the agent had
+declared the verification good.
+
 When presenting to the user, screenshots are reference only — their verdict happens on
 the live URL in their own browser: run `open <url>` for them and print the URL on its
 own line in a code block (never inline; terminal truncation corrupts copied URLs).

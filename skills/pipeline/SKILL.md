@@ -66,9 +66,11 @@ full-site redesigns:
 7. **The repo is not the brand truth.** Real brand assets (mascot, logos, photography)
    may live outside the repo. Trust DESIGN.md's asset inventory and its "asset
    pendiente" list — never assume a placeholder found in code is the real identity.
-8. **Vertical budget from v1.** Designs fit the primary reference viewport
-   intentionally and never depend on an exact height — fold-crossing elements must
-   look deliberate; use fluid spacing (`clamp()`, `100svh`).
+8. **Vertical budget from v1, measured against the REAL fold.** Designs fit the primary
+   reference viewport intentionally and never depend on an exact height — fold-crossing
+   elements must look deliberate; use fluid spacing (`clamp()`, `100svh`). On mobile the
+   budget is the **alto útil** from DESIGN.md (URL bar expanded), never the device height:
+   they differ by ~12% and content that "fits" the device falls below the fold on the phone.
 9. **Never a bare render.** Any design options shown to the user use the explicit
    comparative format: case badge (A/B/C) + title + status chip (`Recomendado` /
    `Variación fresca` / `Riesgo`) + 1–2 line description with the tradeoff + frames
@@ -93,13 +95,19 @@ full-site redesigns:
    survive an adversarial refute pass before it counts. Render mobile at the TRUE width —
    headless `--window-size` clamps `innerWidth` to ~500 and crops, faking clips; use
    Playwright or a forced-width iframe, and when gate and eye disagree, the gate wins.
-11. **Mobile is first-class, not an afterthought.** DESIGN.md records a mandatory mobile
-   viewport alongside desktop. Every phase that produces visual evidence renders desktop
-   AND mobile: ideation frames both, build ships the `@media` mobile with the component,
-   critique captures mobile and FAILS (ITERA, never PASA) without mobile evidence or with
-   a broken mobile composition. Mobile is not "narrower desktop" — it's a distinct
-   composition problem (single-column, background-position, object-fit, text-over-image
-   legibility) that hides bugs desktop never shows.
+11. **Mobile is first-class, not an afterthought — and one viewport height is not mobile
+   evidence.** DESIGN.md records a mandatory mobile viewport alongside desktop, at BOTH its
+   heights: `alto útil / fold` (URL bar expanded) and `alto del dispositivo` (collapsed) —
+   the mobile viewport is a range that changes at runtime, not a number. Every phase that
+   produces visual evidence renders desktop AND mobile: ideation frames both mobile states
+   always (iframe sized to the height being rendered, so `svh` resolves as it does on the
+   phone) and reports the decisive elements measured against the fold plus their diff
+   between states; build ships the `@media` mobile with the component; critique captures
+   both states and FAILS (ITERA, never PASA) without mobile evidence, with evidence at a
+   single height, or with a broken mobile composition. Mobile is not "narrower desktop" —
+   it's a distinct composition problem (single-column, background-position, object-fit,
+   text-over-image legibility) that hides bugs desktop never shows, and each height hides
+   bugs the other doesn't.
 
 ## Proven practices (keep doing these)
 
