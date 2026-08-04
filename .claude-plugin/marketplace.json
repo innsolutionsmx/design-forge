@@ -1,5 +1,6 @@
 {
   "name": "design-forge",
+  "description": "Marketplace del plugin design-forge: harness de diseño frontend en 4 fases (contexto → ideación → build → crítica).",
   "owner": {
     "name": "Innsolutions"
   },
