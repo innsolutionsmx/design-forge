@@ -51,18 +51,26 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
 
 ## Cómo se hace una release
 
-0. **Validar el manifest** — `bash scripts/validate-manifest.sh`. Gate determinístico:
-   JSON parseable, `name`/`version` presentes y semver, ninguna ruta declarada que no
-   exista, y —el bug que lo motivó— la clave `hooks` NO apuntando al estándar
-   `hooks/hooks.json` (Claude Code ya lo carga por convención; declararlo es inválido y
-   rompe la carga del plugin ENTERO). Sale 0 = publicable, 1 = no.
+0. **Validar el manifest** — `bash scripts/validate-manifest.sh`. Sale 0 = publicable,
+   1 = no. Delega en `claude plugin validate --strict` (la verdad del runtime: sintaxis,
+   rutas declaradas, la clave `hooks` apuntando al estándar —el bug de la v0.6.0—,
+   claves con typo, y la sintaxis de los hooks por convención) y le suma el hueco
+   verificado del oficial: el **semver** de `version` (`"v0.7"` pasa el oficial incluso
+   con `--strict`). Sin el CLI cae a una validación propia equivalente. ⚠️ El oficial
+   necesita el `plugin.json` EXPLÍCITO: si le pasás el directorio y existe
+   `marketplace.json`, valida el marketplace y cambia de target en silencio.
 1. **Bump de versión** en `.claude-plugin/plugin.json` (semver: fix = patch,
    feature = minor, incompatible = major). Sin bump NO hay distribución — el cache de
    plugins es por versión.
 2. Merge `dev` → `main` y push.
-3. **Gate manual**: `claude plugin list` sobre la versión candidata debe decir
-   `✔ enabled`. Un `✘ failed to load` acá es un release que se lleva puestos los
-   skills, comandos y MCP servers de todos los proyectos que lo consumen.
+3. **Verificación post-release, desde un proyecto CONSUMIDOR** (el plugin NO está
+   instalado en este repo — decisión deliberada: acá no hay UI, y tenerlo cargaría el
+   Playwright MCP y el hook de preview en cada sesión para nada): correr
+   `claude plugin update design-forge@design-forge --scope project` en un consumidor
+   (landing-crb/landing-urn) y exigir `Status: ✔ enabled` en `claude plugin list` —
+   ambas cosas también funcionan desde este repo, porque el CLI resuelve los proyectos
+   instalados globalmente. Un `✘ failed to load` es un release que se lleva puestos los
+   skills, comandos y MCP servers de todos los que lo consumen.
 4. Los proyectos con `autoUpdate: true` la reciben en su próxima sesión.
 
 El paso 0 no depende de tu memoria: `.claude/hooks/pre-release-guard.sh` (`PreToolUse`
