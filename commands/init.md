@@ -65,6 +65,21 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
    later phases renders at desktop AND mobile from these values — never generic defaults.
    A DESIGN.md without a mobile viewport is incomplete; do not close phase 0 without it.
 
+7a. **The mobile viewport is a RANGE, not a number — record BOTH ends.** On a phone the
+   usable height changes at runtime: Safari iOS shows ~745px with the URL bar expanded and
+   ~852px once it collapses, on the same device. A single number makes every later phase
+   render at one end and call it "mobile", which produces two opposite lies — content that
+   "fits" the device height falls below the fold on the real phone, and layouts tied to
+   `svh` measure whatever container they were rendered in. Record under "Viewports":
+   - **alto del dispositivo** (barra colapsada) — e.g. 852;
+   - **alto útil / fold** (barra desplegada) — e.g. 745. This is the height the user
+     actually sees when they land.
+   **Measure it, don't guess it.** Ask the user to open the site on their real phone and
+   read `window.innerHeight` with the URL bar expanded — that number is the truth. Only if
+   they can't, derive a default of **~87.5% of the device height** and record it as
+   `estimado`, so a later phase knows it was never measured. Browser chrome differs across
+   iOS Safari, Chrome Android and in-app webviews; the percentage is a fallback, not a fact.
+
 7b. **Real contexts inventory**: record in DESIGN.md the visual environments where
    components actually live (e.g. "hero oscuro con imagen", "secciones de contenido
    claras", "footer primary"). Detect them from the live site or the views; confirm

@@ -137,6 +137,24 @@ Determine whether the brief targets an EXISTING section of the site:
      NEVER narrow a desktop frame to fake mobile: a narrow crop produces false overflows.
      If you additionally show a comparison grid, caption it explicitly: "el recorte es
      del encuadre, no del diseño".
+   - **Mobile renders TWICE — the viewport is a range, not a number.** Take both heights
+     from DESIGN.md (`alto útil / fold` and `alto del dispositivo`) and give EVERY variation
+     two mobile frames, always — never only one, and never "this one doesn't touch the fold"
+     (that judgement call is exactly what this replaces):
+     - **`estado fold`** — iframe at the useful height (e.g. 390×745). This is what the user
+       sees when they land, with the URL bar expanded. The frame edge IS the fold.
+     - **`estado dispositivo`** — iframe at the device height (e.g. 390×852), with a **marked
+       line at the fold height** and a legend ("fold con barra desplegada — 745px"). Below
+       that line is content the user does not see until they scroll.
+     Caption each frame with its state AND its number. **Size the iframe to the height being
+     rendered** — do not render at one height and compensate: inside an iframe `100svh`
+     resolves to the IFRAME, so an iframe at the true height makes `svh` layouts draw exactly
+     as they do on the phone, with no patching. Additionally expose the fold as `--fold` on
+     the iframe document, so a layout can anchor to it explicitly; it is a convenience, not
+     the mechanism — the mechanism is the iframe height being real.
+     Why both, always: a hero variation "fit" a 852 frame and landed 48px below the fold on
+     the real phone; and a carousel whose slides differed 4px at 745 differed **107px** at
+     852, with the controls jumping between slides. Each state hides bugs the other doesn't.
 
    A bare render with no badge/title/description is FORBIDDEN — the user must be able
    to compare with their eyes without imagining anything.
@@ -157,9 +175,11 @@ Determine whether the brief targets an EXISTING section of the site:
    pixels it does not need. A read-only / verification agent type is ideal — it only
    inspects, never edits the mockup. Launch ONE subagent per preview sheet with this
    contract:
-   - **Give it:** the served preview URL, the desktop reference viewport (W×H) and the
-     mobile reference viewport (W×H), the real contexts from DESIGN.md, and the
-     broken-state checklist below.
+   - **Give it:** the served preview URL, the desktop reference viewport (W×H), the mobile
+     reference viewport at BOTH heights (`alto útil / fold` and `alto del dispositivo` from
+     DESIGN.md), the real contexts from DESIGN.md, the list of decisive elements to measure
+     (selectors for CTA, nav, end of the hero content — whatever the decision hangs on), and
+     the broken-state checklist below.
    - **It must, PER viewport, in this order:**
      1. **Deterministic overflow gate FIRST — trust it OVER your eyes.** Evaluate in the
         page `document.documentElement.scrollWidth > document.documentElement.clientWidth`
@@ -180,6 +200,17 @@ Determine whether the brief targets an EXISTING section of the site:
         inside a `<W>px` iframe (which forces the true width) and screenshot that instead.
         Only once the viewport is real: scroll in steps with short delays so on-scroll
         reveals have fired, then LOOK at every image.
+     3. **Measure the fold in BOTH mobile states — the eye cannot see 12px.** Mobile is
+        measured at the useful height AND the device height (both from DESIGN.md), never at
+        one. Per state, evaluate in the page `getBoundingClientRect().bottom` for each
+        decisive element and report it against the fold height: how many px of air are left,
+        or how many px it falls below. Then report the **DIFF of those positions between the
+        two states** — an element that moves when the URL bar collapses is a FINDING, not
+        noise. Report the numbers even when everything passes: "entra" is not a measurement,
+        and a decision taken on "entra" is a decision taken on nothing. Two real bugs came
+        from skipping this: a hero 48px below a fold that "fit" the frame, and a carousel
+        whose slides differed 4px at 745 and 107px at 852 — approved on the numbers of one
+        state, broken on the phone in the other.
    - **Broken-state checklist:** invisible text; broken states; **any element or text
      clipped at, or overflowing, the viewport edge — on BOTH desktop AND mobile** (not a
      desktop-only concern); collapsed cards, cropped photo subjects, and text buried over a
@@ -188,10 +219,12 @@ Determine whether the brief targets an EXISTING section of the site:
      the CSS crop = false OK); the crop itself is a decision resolved in step 8.
    - **It returns TEXT ONLY — never the images.** A structured verdict: per variation, per
      real context, per viewport → `legible` / `ilegible`, and for each `ilegible` the
-     specific issue and where it is (selector / area) so a fix needs no pixels. A header
-     line reporting how many captures it inspected ("cuarentené N capturas") — that count
-     is the visible proof the image tokens stayed OUT of the orchestrator. And a final
-     `go` / `no-go`.
+     specific issue and where it is (selector / area) so a fix needs no pixels. Plus the
+     **fold table**: per variation, per decisive element, its bottom edge in `estado fold`
+     and in `estado dispositivo`, the air (or overflow) against the fold, and the diff
+     between states. Text and numbers travel; pixels don't. A header line reporting how many
+     captures it inspected ("cuarentené N capturas") — that count is the visible proof the
+     image tokens stayed OUT of the orchestrator. And a final `go` / `no-go`.
    - **Adversarial second pass on every `go` — a `go` is the dangerous verdict.** A single
      passive verifier defaults to `go` and rubber-stamps. When the first subagent returns
      `go`, launch a SECOND, independent subagent that starts from the OPPOSITE prior:

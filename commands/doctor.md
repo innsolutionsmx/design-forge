@@ -37,6 +37,13 @@ anything without asking — diagnose first.
    mandatory) and brand asset inventory? If the mobile viewport is missing, ⚠️ and send
    the user to re-run `/design-forge:init`. If PRODUCT/DESIGN don't exist at all, first
    step is `/design-forge:init`.
+8c. **Mobile viewport recorded as a RANGE**: DESIGN.md must record BOTH mobile heights —
+   `alto útil / fold` (URL bar expanded) and `alto del dispositivo` (collapsed). Only one
+   height → ⚠️ with the consequence spelled out: every later phase will render at one end
+   and call it mobile, which lets content that "fits" the device fall below the real fold.
+   Fix: re-run `/design-forge:init` (step 7a), measuring `window.innerHeight` on the real
+   phone. If the useful height is recorded as `estimado` (derived from the ~87.5% default
+   instead of measured), ⚠️ softly — usable, but the number was never confirmed.
 8b. **Clone up to date**: `git fetch origin` then
    `git rev-list --count HEAD..origin/main`. If there are unpulled commits, ⚠️ with
    the count — a stale clone produces false baselines in phase 1 (especially on
@@ -52,6 +59,16 @@ anything without asking — diagnose first.
    an `idea/*` branch, ⚠️ listing each (path + branch) and suggest `/design-forge:teardown`
    to archive its mockups and remove it. If there are none, ✅ (nothing to clean). Warning
    only, never an error — an intentional parallel worktree the user asked for is legitimate.
+
+11. **Plugin manifest** (only in the design-forge repo itself): if the cwd is the plugin's
+   own repo (`.claude-plugin/plugin.json` exists AND its `name` is `design-forge`), run
+   `bash scripts/validate-manifest.sh` and report its verdict — ✅ publishable, ❌ with the
+   script's output otherwise. In ANY other project, report N/A in one line and move on.
+   Why N/A elsewhere: `doctor` is a command OF the plugin, so an invalid manifest means the
+   plugin never loaded and this command doesn't exist — the check can only ever fire where
+   the file being validated is a working tree, not the loaded plugin. Note this check is a
+   convenience: the actual release gate is `.claude/hooks/pre-release-guard.sh`, which
+   blocks `git merge`/`tag`/`push` on a broken manifest without anyone remembering to ask.
 
 ## Output
 
