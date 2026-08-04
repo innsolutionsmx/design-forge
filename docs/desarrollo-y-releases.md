@@ -63,6 +63,10 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
    feature = minor, incompatible = major). Sin bump NO hay distribución — el cache de
    plugins es por versión.
 2. Merge `dev` → `main` y push.
+2b. **Taggear**: `claude plugin tag --push` parado en `main` recién mergeado (crea
+   `design-forge--v{version}` validando que `plugin.json` y la entrada del marketplace
+   coincidan — un gate gratis extra; exige working tree limpio). Los releases
+   0.5.0→0.7.1 tienen tags de backfill con este formato apuntando a su merge en main.
 3. **Verificación post-release, desde un proyecto CONSUMIDOR** (el plugin NO está
    instalado en este repo — decisión deliberada: acá no hay UI, y tenerlo cargaría el
    Playwright MCP y el hook de preview en cada sesión para nada): correr
@@ -78,13 +82,13 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
    `~/.claude/plugins/installed_plugins.json` (trae `projectPath` + `version`), no
    contra el mensaje del CLI. Un `✘ failed to load` es un release que se lleva
    puestos los skills, comandos y MCP servers de todos los que lo consumen.
-4. **Propagación a consumidores — hoy es MANUAL.** Ningún proyecto real tiene
-   `autoUpdate: true` para este marketplace (landing-urn ni siquiera tiene la clave
-   `extraKnownMarketplaces`; landing-crb la tiene sin `autoUpdate`), así que nadie
-   recibe releases solo — quedó probado: landing-urn estuvo clavado en 0.6.1 mientras
-   el marketplace servía 0.7.1. Hasta que se decida el mecanismo (ver backlog), el
-   release termina con `claude plugin update` corrido EN cada consumidor + reinicio
-   de su sesión.
+4. **Propagación a consumidores — vía `autoUpdate: true`.** Todo consumidor DEBE tener
+   la entrada de `extraKnownMarketplaces` con `autoUpdate: true` (SETUP.md paso 2 — que
+   aplica también a installs viejos: un install a mano deja el plugin andando pero
+   congelado, probado con landing-urn clavado en 0.6.1 mientras el marketplace servía
+   0.7.1). Con eso configurado, los releases llegan al abrir la próxima sesión del
+   consumidor. La verificación del paso 3 sigue vigente igual: `installed_plugins.json`
+   es la verdad, no el mensaje del CLI ni la suposición de que el autoUpdate corrió.
 
 El paso 0 no depende de tu memoria: `.claude/hooks/pre-release-guard.sh` (`PreToolUse`
 sobre `Bash`, registrado en `.claude/settings.json`) corre el validador solo ante
@@ -104,4 +108,17 @@ repo, `ai/context/` (no viajan al consumidor — se sirven raw desde main o son 
 - Cambios de fondo: plan corto → OK del owner → ejecutar. Cambios relacionados en UNA
   rama/propuesta.
 - Toda feature nueva se valida en una corrida real antes de considerarse cerrada
-  (los criterios de aceptación del handoff son el checklist).
+  (los criterios de aceptación del handoff son el checklist) — y la corrida tiene que
+  ser **CIEGA**, si no certifica lo no probado. Protocolo (nacido de una validación
+  contaminada de la 0.7.1, donde el ejecutor corría 0.6.1 Y tenía el checklist en la
+  mano — cumplió los 6 puntos por instrucción, no porque el plugin los exigiera):
+  1. **Verificar la versión CARGADA, no la instalada.** Al arrancar, el ejecutor
+     confirma que los bloques NUEVOS del comando/skill están en su contexto (un
+     `rg` de una frase distintiva de la feature contra lo que recibió). El
+     marketplace puede servir X mientras la sesión cargó Y.
+  2. **El ejecutor recibe SOLO el brief.** El checklist de aceptación se queda con
+     el juez (la sesión del repo del plugin) y se contrasta DESPUÉS contra lo que la
+     corrida produjo sola. Pasarle el checklist al ejecutor convierte el examen en
+     teatro: va a cumplir los puntos porque se los pidieron.
+  3. Sin (1) y (2), la corrida NO cuenta como validación — se repite, no se
+     "aprovecha".

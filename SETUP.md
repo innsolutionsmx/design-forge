@@ -47,6 +47,14 @@ existing file first** and merge these two keys into it, preserving everything el
 `autoUpdate: true` is deliberate: third-party marketplaces have it OFF by default;
 with it on, plugin releases reach the project automatically on the next session start.
 
+**This step applies to EXISTING installs too — check for drift.** An install done via
+`claude plugin install` (or predating this doc) may have `enabledPlugins` WITHOUT the
+`extraKnownMarketplaces` entry or without `autoUpdate` — the plugin works but never
+receives releases. Real case: a consumer sat on 0.6.1 while the marketplace served
+0.7.1, and a feature validation ran against the stale version believing it was current.
+If `enabledPlugins` has `design-forge@design-forge` but `extraKnownMarketplaces` lacks
+the entry above, add it.
+
 If the keys already exist, add these entries inside them — do not replace the objects
 wholesale. If the file doesn't exist, create it with exactly this content.
 
