@@ -67,9 +67,11 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
    instalado en este repo — decisión deliberada: acá no hay UI, y tenerlo cargaría el
    Playwright MCP y el hook de preview en cada sesión para nada): correr
    `claude plugin update design-forge@design-forge --scope project` en un consumidor
-   (landing-crb/landing-urn) y exigir `Status: ✔ enabled` en `claude plugin list` —
-   ambas cosas también funcionan desde este repo, porque el CLI resuelve los proyectos
-   instalados globalmente. Un `✘ failed to load` es un release que se lleva puestos los
+   (landing-crb/landing-urn) y exigir `Status: ✔ enabled` en `claude plugin list`.
+   ⚠️ El `update` funciona desde cualquier cwd (resuelve los proyectos instalados
+   globalmente), pero el `Status` del `list` es RELATIVO al cwd: desde otro repo muestra
+   `✘ disabled` aunque el consumidor lo tenga sano — el `list` corrélo parado EN el
+   consumidor. Un `✘ failed to load` es un release que se lleva puestos los
    skills, comandos y MCP servers de todos los que lo consumen.
 4. Los proyectos con `autoUpdate: true` la reciben en su próxima sesión.
 
