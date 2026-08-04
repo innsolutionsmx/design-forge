@@ -66,14 +66,25 @@ tarea de UI) — solo entra lo que previene errores reales ya vistos.
 3. **Verificación post-release, desde un proyecto CONSUMIDOR** (el plugin NO está
    instalado en este repo — decisión deliberada: acá no hay UI, y tenerlo cargaría el
    Playwright MCP y el hook de preview en cada sesión para nada): correr
-   `claude plugin update design-forge@design-forge --scope project` en un consumidor
-   (landing-crb/landing-urn) y exigir `Status: ✔ enabled` en `claude plugin list`.
-   ⚠️ El `update` funciona desde cualquier cwd (resuelve los proyectos instalados
-   globalmente), pero el `Status` del `list` es RELATIVO al cwd: desde otro repo muestra
-   `✘ disabled` aunque el consumidor lo tenga sano — el `list` corrélo parado EN el
-   consumidor. Un `✘ failed to load` es un release que se lleva puestos los
-   skills, comandos y MCP servers de todos los que lo consumen.
-4. Los proyectos con `autoUpdate: true` la reciben en su próxima sesión.
+   `claude plugin update design-forge@design-forge --scope project` y exigir
+   `Status: ✔ enabled` en `claude plugin list` — **AMBOS parados EN el consumidor**
+   (landing-crb/landing-urn). ⚠️ Los dos comandos son cwd-dependientes: el `Status`
+   del `list` muestra `✘ disabled` desde otro repo aunque el consumidor esté sano, y
+   la resolución cross-cwd del `update` elige UN proyecto que no es necesariamente el
+   buscado — caso real: corrido dos veces desde el repo del plugin apuntando a
+   landing-urn, actualizó landing-crb la primera y la segunda respondió
+   `already at the latest version` SIN nombrar proyecto, dejando a landing-urn en
+   0.6.1 mientras se reportaba 0.7.1. Verificá el resultado contra
+   `~/.claude/plugins/installed_plugins.json` (trae `projectPath` + `version`), no
+   contra el mensaje del CLI. Un `✘ failed to load` es un release que se lleva
+   puestos los skills, comandos y MCP servers de todos los que lo consumen.
+4. **Propagación a consumidores — hoy es MANUAL.** Ningún proyecto real tiene
+   `autoUpdate: true` para este marketplace (landing-urn ni siquiera tiene la clave
+   `extraKnownMarketplaces`; landing-crb la tiene sin `autoUpdate`), así que nadie
+   recibe releases solo — quedó probado: landing-urn estuvo clavado en 0.6.1 mientras
+   el marketplace servía 0.7.1. Hasta que se decida el mecanismo (ver backlog), el
+   release termina con `claude plugin update` corrido EN cada consumidor + reinicio
+   de su sesión.
 
 El paso 0 no depende de tu memoria: `.claude/hooks/pre-release-guard.sh` (`PreToolUse`
 sobre `Bash`, registrado en `.claude/settings.json`) corre el validador solo ante
