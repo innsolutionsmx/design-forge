@@ -44,9 +44,9 @@ Diagnóstico: Impeccable (requerido), Playwright MCP, servidor HTTP estático, f
 Chrome headless, SkillUI/Stitch/21st.dev/webgpu (opcionales), PRODUCT/DESIGN.md
 completos (incluido el viewport mobile registrado como RANGO, no como número),
 **detección de cerebros de diseño en conflicto** (UI/UX Pro Max, Taste,
-frontend-design → warning), **aviso de worktrees `idea/*` viejos** sin cerrar
-(sugiere `/design-forge:teardown`) y, sólo dentro del repo del plugin, la validación del
-manifest antes de publicar (N/A en cualquier otro proyecto).
+frontend-design → warning) y **aviso de worktrees `idea/*` viejos** sin cerrar
+(sugiere `/design-forge:teardown`). La validación del manifest NO vive acá: es el gate
+de release del repo del plugin (`scripts/validate-manifest.sh` + hook local).
 
 ## Skill de doctrina: `design-pipeline`
 

@@ -60,16 +60,6 @@ anything without asking — diagnose first.
    to archive its mockups and remove it. If there are none, ✅ (nothing to clean). Warning
    only, never an error — an intentional parallel worktree the user asked for is legitimate.
 
-11. **Plugin manifest** (only in the design-forge repo itself): if the cwd is the plugin's
-   own repo (`.claude-plugin/plugin.json` exists AND its `name` is `design-forge`), run
-   `bash scripts/validate-manifest.sh` and report its verdict — ✅ publishable, ❌ with the
-   script's output otherwise. In ANY other project, report N/A in one line and move on.
-   Why N/A elsewhere: `doctor` is a command OF the plugin, so an invalid manifest means the
-   plugin never loaded and this command doesn't exist — the check can only ever fire where
-   the file being validated is a working tree, not the loaded plugin. Note this check is a
-   convenience: the actual release gate is `.claude/hooks/pre-release-guard.sh`, which
-   blocks `git merge`/`tag`/`push` on a broken manifest without anyone remembering to ask.
-
 ## Output
 
 A table: herramienta | estado (✅/⚠️/❌) | rol | cómo arreglarlo. End with the single

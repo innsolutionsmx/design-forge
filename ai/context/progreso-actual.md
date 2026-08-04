@@ -10,8 +10,23 @@
 
 - **Fecha**: 2026-08-03
 - **Máquina**: Mac (oficina)
-- **Rama actual**: `feat/fold-dos-estados` (sobre `dev`; `dev` tiene el gate del manifest ya integrado, SIN pushear)
-- **Última acción**: **BACKLOG EN CERO — dos batches.**
+- **Rama actual**: `fix/doctor-check-muerto-y-validate-oficial` (0.7.1 lista para dev→main)
+- **Última acción**: **RELEASE 0.7.1 (correctiva de la 0.7.0)**. Dos correcciones, ambas
+  gatilladas por preguntas del owner que destaparon errores del agente:
+  (1) **El check 11 de `doctor` nació MUERTO y se BORRÓ**: el plugin nunca estuvo instalado
+  en su propio repo (las entradas de `plugin list` eran landing-crb y landing-urn). Se evaluó
+  instalarlo y se REVIRTIÓ: el plugin cargado sería el release CACHEADO de GitHub main, no el
+  working tree (cero valor de dev-loop), y costaría Playwright MCP + hook de preview en cada
+  sesión de un repo sin UI. La verificación post-release se hace desde un consumidor
+  (`claude plugin list`/`update` resuelven proyectos desde cualquier cwd).
+  (2) **`validate-manifest.sh` ahora DELEGA en `claude plugin validate --strict`** (existía y
+  no se buscó antes de escribir el validador a mano): caza el bug v0.6.0, rutas inexistentes,
+  sintaxis de hooks por convención y claves con typo. Su único hueco medido es el semver
+  (`"v0.7"` pasa incluso con --strict) — el script lo suma, más fallback jq/python3 sin CLI.
+  Gotcha: pasarle el DIRECTORIO valida el marketplace.json si existe; hay que pasar
+  `plugin.json` explícito. + `description` al marketplace.json (mataba warning de --strict).
+  **Falta**: merge a dev→main + push, verificación `✔ enabled` desde consumidor.
+- **Acción histórica (0.7.0, ya en `main`)**: **BACKLOG EN CERO — dos batches.**
   **(1) Gate del manifest (sin release, no toca `commands/`)**: `scripts/validate-manifest.sh`
   (determinístico, exit 0/1: JSON parseable, `name`/`version` semver, rutas declaradas
   existentes, y la clave `hooks` NUNCA apuntando al estándar `hooks/hooks.json`) + hook LOCAL
@@ -22,7 +37,7 @@
   Postura invertida respecto de los otros hooks del repo: éste bloquea también cuando NO puede
   validar — un gate que falla en silencio da confianza falsa. `docs/desarrollo-y-releases.md`:
   la release pasa de 3 pasos a 5.
-  **(2) Viewport mobile como RANGO (release 0.7.0, PENDIENTE de merge a `main`)**: cierra las
+  **(2) Viewport mobile como RANGO (release 0.7.0, PUBLICADA en `main`)**: cierra las
   dos entradas del fold. DESIGN.md registra alto útil/fold Y alto del dispositivo (medidos en
   el teléfono, `window.innerHeight`; el ~87.5% es default `estimado`); `ideate` rinde SIEMPRE
   dos frames mobile con el iframe dimensionado al alto real de cada estado —así `svh` resuelve
@@ -30,9 +45,8 @@
   la **tabla de fold** del verificador (`getBoundingClientRect().bottom` contra el fold por
   estado + DIFF entre estados); `review` falla también con evidencia en UNA sola altura;
   reglas 8 y 11 de `SKILL.md` extendidas (no se agregó una regla 12: son caras). Colgado del
-  mismo release, el check 11 del manifest en `doctor`.
-  **Falta**: pushear `dev`, mergear a `main`, y `claude plugin list` → `✔ enabled` como gate
-  manual. **NO validado aún en corrida real** (regla de proceso 3).
+  mismo release, el check 11 del manifest en `doctor` (⚠️ revertido en 0.7.1 — nació muerto).
+  **NO validado aún en corrida real** (regla de proceso 3).
 - **Acción previa**: **HOTFIX v0.6.1 a `main`**: la v0.6.0 se publicó con un
   `.claude-plugin/plugin.json` INVÁLIDO — traía `"hooks": "hooks/hooks.json"`, pero Claude
   Code ya carga ese archivo por convención, así que declararlo tira
