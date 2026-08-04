@@ -10,8 +10,24 @@
 
 - **Fecha**: 2026-08-03
 - **Máquina**: Mac (oficina)
-- **Rama actual**: `fix/doctor-check-muerto-y-validate-oficial` (0.7.1 lista para dev→main)
-- **Última acción**: **RELEASE 0.7.1 (correctiva de la 0.7.0)**. Dos correcciones, ambas
+- **Rama actual**: `feat/propagacion-tags-protocolo` (lista para dev→main, sin bump)
+- **Última acción**: **CORRIDA DE VALIDACIÓN 0.7.1 CONTAMINADA + 3 mejoras cerradas.**
+  La corrida en landing-urn quedó INVALIDADA como validación: (1) urn corría 0.6.1 — el
+  `claude plugin update` cross-cwd había actualizado a landing-crb y su mensaje `already
+  at the latest version` no nombra proyecto (la verdad de versiones es
+  `installed_plugins.json`, NUNCA el mensaje del CLI); (2) el orquestador le pasó el
+  checklist de aceptación al ejecutor, que cumplió los 6 puntos por instrucción (el skill
+  cargado NO tenía los bloques de 0.7.1 — probado con rg). El trabajo de diseño de la
+  corrida vale (3 variantes CTA medidas, Δ+99px, scrollbar 15px, href muerto). Fixes:
+  urn actualizado a 0.7.1 PARADO EN su cwd; doc retractado (e47c555). Del backlog salieron
+  y se CERRARON 3 mejoras: **propagación** (autoUpdate: true configurado en urn y crb —
+  falta que cada proyecto commitee su settings —, SETUP.md ampliado a installs existentes),
+  **protocolo de corrida CIEGA** (regla de proceso 3: versión CARGADA verificada + brief
+  sin checklist + si no, se repite), y **tags** (backfill design-forge--v0.5.0→0.7.1 en
+  los merges de main + paso 2b `claude plugin tag --push`).
+  **VALIDACIÓN 0.7.1 SIGUE PENDIENTE** — primera corrida bajo protocolo ciego, tras
+  reiniciar la sesión de urn.
+- **Acción previa**: **RELEASE 0.7.1 (correctiva de la 0.7.0)**. Dos correcciones, ambas
   gatilladas por preguntas del owner que destaparon errores del agente:
   (1) **El check 11 de `doctor` nació MUERTO y se BORRÓ**: el plugin nunca estuvo instalado
   en su propio repo (las entradas de `plugin list` eran landing-crb y landing-urn). Se evaluó
