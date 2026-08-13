@@ -23,7 +23,12 @@ al ancho real del target. **Mobile rinde SIEMPRE dos frames** (estado fold y est
 dispositivo, con la marca del fold en el segundo) y el verificador reporta los elementos
 decisivos medidos contra el fold + el diff entre estados — 12px de aire no se ven a ojo.
 Render verificado visualmente antes de mostrarse; veredicto del
-usuario sobre la URL viva. Los previews no elegidos son efímeros (se limpian en teardown).
+usuario sobre la URL viva. Al elegir ganadora: **pase de pulido opcional** — UN solo
+`/impeccable:critique` sobre el ganador (sin audit, sin loop — eso es fase 3), fixes
+aplicados como delta sobre los archivos ya construidos (snapshot previo como rollback,
+jamás rebuild), re-verificación con el contrato del paso 7 y antes/después en URL viva;
+el usuario decide aplicar o descartar. Los previews no elegidos son efímeros (se limpian
+en teardown).
 
 ### `/design-forge:build [qué]`
 Fase 2 — Build. Implementa contra DESIGN.md (tokens only, mobile-first, accesibilidad
