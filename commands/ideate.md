@@ -1,5 +1,5 @@
 ---
-description: "Fase 1 — Ideación: preview comparativo explícito con 2-3 variaciones in-place (sin worktrees por defecto)"
+description: "Fase 1 — Ideación: preview comparativo explícito con 2-3 variaciones in-place (sin worktrees por defecto) + pase de pulido opcional del ganador (un critique, delta, antes/después)"
 argument-hint: "[brief corto de la sección o feature]"
 ---
 
@@ -264,14 +264,42 @@ Determine whether the brief targets an EXISTING section of the site:
 9. Iterate v2, v3… on the variations the user reacts to, same rules (baseline
    comparison, explicit format, real contexts, real width, live URL).
 
-10. When the user picks the winner ("esta es"): implement it in the real project
-   (phase 2, on a `feat/*` branch), and update DESIGN.md with any decisions the winning
+10. **Pase de pulido opcional (critique del ganador) — ONE pass, no loop.** When the
+    user picks the winner ("esta es"), offer one bounded pass through the design brain
+    before the winner leaves ideation. Opt-in: if the user declines, go straight to
+    step 11. The point is closing the gap where the winner travels uncritiqued until
+    phase 3 — WITHOUT paying phase 3 twice.
+    - **Critique only, winner only.** Run Impeccable's critique (`/impeccable:critique`)
+      on the winning variation ONLY — never audit, never an iterate loop. Audit and the
+      critique loop are phase 3 (`/design-forge:review`) territory; duplicating them here
+      doubles the pipeline's cost for feedback that expires when build mutates the design.
+      If Impeccable isn't installed, skip the pass and point to `/design-forge:doctor` —
+      never block ideation on it.
+    - **Snapshot before touching.** The variation lives in a gitignored preview area, so
+      git can't revert it. Copy the winner's files first (e.g. `<name>.html` →
+      `<name>.pre-pulido.html`); that copy IS the rollback.
+    - **Fixes are a DELTA, never a rebuild.** Apply the critique's findings as surgical
+      edits over the already-built files. Rebuilding from scratch throws away code the
+      preview already validated and reopens every bug it already caught — and it is
+      exactly the token bill this pass exists to avoid.
+    - **Re-verify with the step 7 contract.** The polished winner goes through the same
+      delegated verification (deterministic overflow gate, both viewports, both mobile
+      heights, text-only verdict). A polish pass without verification can un-fix what
+      the preview already certified.
+    - **Show antes/después on a live URL.** One comparison in the preview-sheet frame
+      format: the snapshot as "antes", the polished winner as "después", both viewports.
+      The user decides — **aplicar** (the polished files become the winner; delete the
+      snapshot) or **descartar** (restore the snapshot; the original stands).
+    - One pass means ONE: whatever critique would find after this waits for phase 3.
+
+11. Implement the winner — polished or not — in the real project (phase 2, on a
+   `feat/*` branch), and update DESIGN.md with any decisions the winning
    direction introduced. The non-winning previews are **ephemeral** — they live in the
    gitignored preview area (or `design/ideas/`), not as permanent inventory. Don't delete
    them mid-decision (the user may still want to A/B), but they're meant to be torn down
    once the winner lands.
 
-11. **Close the exploration when it's truly over.** Once the winner has landed and the
+12. **Close the exploration when it's truly over.** Once the winner has landed and the
     runner-ups are no longer needed, run `/design-forge:teardown` — it archives the
     preview mockups (so untracked work isn't lost) and removes the gitignored preview
     area (or, if the user explicitly created worktrees, the `idea/*` worktrees and
