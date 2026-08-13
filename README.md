@@ -30,7 +30,7 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 | Fase | Comando | Qué hace |
 |------|---------|----------|
 | 0 — Contexto | `/design-forge:init` | Extrae el branding del cliente (SkillUI desde URL) o lo define desde cero (impeccable init). Todo lo demás lee PRODUCT.md y DESIGN.md. |
-| 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño in-place (rutas de preview temporales en el dev stack vivo, o mockups HTML en un subdir gitignored — sin worktrees por defecto); pairing tipográfico; concepto visual con Stitch si está instalado. |
+| 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño in-place (rutas de preview temporales en el dev stack vivo, o mockups HTML en un subdir gitignored — sin worktrees por defecto); pairing tipográfico; concepto visual con Stitch si está instalado. Al elegir ganadora: pase de pulido opcional — UN critique de Impeccable sobre el ganador, fixes como delta (nunca rebuild), antes/después en URL viva y el usuario decide aplicar o descartar. |
 | 2 — Build | `/design-forge:build` | Implementa contra DESIGN.md. Componentes de 21st.dev y efectos WebGPU solo donde se justifican. |
 | 3 — Loop | `/design-forge:review` | impeccable critique + audit, screenshots reales en 3 viewports con Playwright, y decisión: pasa o vuelve a build. Antes de ship: polish + harden. |
 | 4 — Teardown | `/design-forge:teardown` | Cierra la exploración sin dejar residuos: archiva los mockups (para no perder trabajo untracked) y elimina el área de preview in-place (y los worktrees `idea/*` si el usuario los creó explícito). |
