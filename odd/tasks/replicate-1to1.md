@@ -10,18 +10,18 @@ Objective: replace ideate with a 1:1 reference-replica command; slim the pipelin
 - **S4** Review: "que pregunte antes de correr el review" — after the preview is approved, replicate asks before running `/design-forge:review`; never automatic. Review passes concrete context to Impeccable.
 - **S5** Preview verification keeps catching broken output ("tenemos que encontrar la manera de ajustarnos para que siga pasando eso"): keep the deterministic gates (overflow, true mobile width, fold at both heights) and the verifier subagent; merge the refuter INTO the single verifier (adversarial prior + gates) and compare against the reference section by section. Log every catch so the separate refuter can come back with data.
 - **S6** Slim doctrine, hook and doctor accordingly; hard rule "never use the reference's assets"; preview hook fires less broadly; pin Playwright MCP (`@playwright/mcp@0.0.83`).
-- **S7** Backlog: the 4 ideate-only items become obsolete; fold in "dir gitignored para las capturas" and "cada comando declara su versión en el texto".
+- **S7** Backlog: all 6 pending items apply to the new verifier/flow and are closed inside the redesign (corrected from "4 obsolete" after reading their detail — L5).
 - **S8** Version 1.0.0 (breaking: commands removed). Docs (README, SETUP, docs/*) reflect the new flow.
 
 ## Tasks
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1 S2 S4 S5 S7 | inline | pending | |
-| T2 | S3 S4 | inline | pending | |
-| T3 | S6 | inline | pending | |
-| T4 | S6 S8 | inline | pending | |
-| T5 | S7 S8 | inline | pending | |
+| T1 | S1 S2 S4 S5 S7 | inline | done | c18c2d2 |
+| T2 | S3 S4 | inline | done | 474f387 |
+| T3 | S6 | inline | done | 78f059b |
+| T4 | S6 S8 | inline | done | b900dca |
+| T5 | S7 S8 | inline | done | 119ab33 |
 
 T1 replicate command + delete ideate/teardown. T2 build/review updates. T3 doctrine skill rewrite. T4 hook + doctor + manifest. T5 docs + backlog + version.
 
@@ -31,3 +31,6 @@ T1 replicate command + delete ideate/teardown. T2 build/review updates. T3 doctr
 - **L2** (2026-10-28, owner): "que pregunte antes de correr el review"
 - **L3** (2026-10-28, owner): "Es que si me dices que el uno es necesario para no entregar nada roto, tenemos que encontrar la manera de ajustarnos para que siga pasando eso (porque sí he notado que casi todo lo que me entregas está bien hecho y no hay problemas o algo roto en diseño)." → merged verifier+refuter, catches logged. Owner: "Me sirve."
 - **L4** Assumptions: "Wispr" read as "preview" (stated to owner, not corrected). SkillUI verified as a static extractor (not anti-slop); Impeccable stays the anti-slop authority.
+- **L5** (2026-10-28) Reading the backlog detail showed all 6 items are instrument/cleanup issues that also apply to replicate → all folded in and closed (owner told).
+- **L6** (2026-10-28) Discovery: `hooks/preview-discipline.sh` required `jq`; this machine has no jq, so the reminder never fired. RED: 7/7 "must fire" cases failed. GREEN after rewrite (jq|python3|node, plain stdout): 16/16 in `tests/preview-discipline.test.sh`. `bash scripts/validate-manifest.sh` → exit 0 (v1.0.0).
+- **L7** Pending: blind real run of `replicate` in a consumer (process rule 3) before dev→main; release, push and PR are the owner's call.
