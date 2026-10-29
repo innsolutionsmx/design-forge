@@ -38,11 +38,12 @@ el scroll-through pre-screenshot y la disciplina de especificidad CSS.
 
 | Quiero cambiar… | Archivo |
 |-----------------|---------|
-| El procedimiento de una fase | `commands/{init,ideate,build,review}.md` |
+| El procedimiento de una fase | `commands/{init,replicate,build,review}.md` |
 | El diagnóstico | `commands/doctor.md` |
 | Una regla que aplique SIEMPRE (aunque no se invoque comando) | `skills/pipeline/SKILL.md` (hard rules / doctrina) |
 | El MCP bundleado | `mcpServers` en `.claude-plugin/plugin.json` |
 | Lo que se valida antes de publicar | `scripts/validate-manifest.sh` (gate) |
+| El hook de preview | `hooks/preview-discipline.sh` + `tests/preview-discipline.test.sh` |
 | El onboarding para agentes | `SETUP.md` (+ blockquote del README) |
 
 Regla de reparto: si es procedimiento de UNA fase → comando; si es criterio

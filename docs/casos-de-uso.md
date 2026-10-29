@@ -1,29 +1,26 @@
 # Casos de uso
 
-## 1. Rediseño de una sección existente (el caso más común)
+## 1. Encontré un diseño que me gusta — ponelo en mi proyecto (el caso más común)
 
-El caso real que definió el pipeline: "quiero mejorar el navbar" en landing-crb.
+1. Adjuntás la captura (y la URL si la tenés): `/design-forge:replicate quiero este
+   carrusel en la home, en lugar del actual`.
+2. Baseline: captura de la sección real (el "antes").
+3. Mapa de assets: cada foto, logo e ícono de la referencia se mapea a uno de tu
+   proyecto; lo que falte queda `pendiente` con un placeholder neutro. Nunca se usan los
+   assets de la captura: son de otro sitio.
+4. Build 1:1 directo en el proyecto: estructura, proporciones y efectos de la referencia;
+   colores y fuentes de tu DESIGN.md (salvo que pidas copiarlos).
+5. Hoja de preview: la referencia al lado del resultado, en desktop, mobile (las dos
+   alturas) y con la sección anterior visible.
+6. Un subagente verificador la revisa asumiendo que algo está roto (overflow, fold, header,
+   fidelidad, jerarquía, assets). Recién con su `go` la ves, sobre la URL viva.
+7. Iterás hasta que quede. Al aprobar: "¿corro el review?" — vos decidís.
 
-1. `/design-forge:ideate mejorar el navbar` → el router detecta que NO hay diseño
-   concreto → modo preview comparativo.
-2. Baseline: screenshot del navbar REAL al viewport de referencia (el "antes").
-3. El agente propone 3 direcciones — la fiel a lo pedido, y al menos una fresca
-   propia (ej: navbar "isla flotante" tipo Linear) — cada una con nombre, tesis,
-   tradeoff y chip (`Recomendado` / `Variación fresca` / `Riesgo`).
-4. Variaciones in-place (sin worktrees): rutas de preview temporales servidas por el
-   dev stack vivo, o mockups HTML autocontenidos en un subdir gitignored — con los
-   tokens reales de DESIGN.md y los assets reales del repo.
-5. **Preview sheet**: una página con las 3 variaciones — badge A/B/C, descripción,
-   y cada una montada sobre el hero oscuro Y la página clara, con badge
-   legible/ilegible. Renderizada al ancho real (nunca columnas angostas).
-6. Elegís con los ojos sobre la URL viva. Iteración v2, v3 sobre la que reaccionaste.
-7. Con "esta es": fase 2 la implementa en el proyecto real, en rama `feat/*`.
+## 2. Quiero algo nuevo, sin referencia
 
-## 2. Tengo un diseño concreto — implementalo
-
-Le pasás el mockup/spec exacto → el router de `ideate` lo detecta y va DIRECTO a
-`/design-forge:build`. Cero variaciones: generar alternativas contra un diseño ya
-decidido es ruido.
+`/design-forge:build hero con formulario de contacto` → implementa contra DESIGN.md,
+mobile incluido, con preview antes de finalizar. Si un patrón ayuda (un carrusel, un
+mega-menú), te muestra dónde lo encontró en vez de meter una librería.
 
 ## 3. Proyecto nuevo de un cliente con marca existente
 
@@ -41,12 +38,13 @@ tokens, etc.) y CONSOLIDA — no rediseña ni inventa tokens que contradigan lo 
 
 ## 5. Verificar que el diseño implementado está bien de verdad
 
-1. `/design-forge:review http://localhost:3000` → critique + audit de Impeccable +
+1. `/design-forge:review http://localhost:3000` (o un "sí" cuando `replicate`/`build`
+   te pregunta) → critique + audit de Impeccable con contexto +
    screenshots reales en los viewports de referencia + interacciones ejercitadas.
 2. Veredicto por iteración: PASA (→ polish + harden y ship) o ITERA (fix list
    concreta y de vuelta).
 3. El loop está ACOTADO a 3 iteraciones: si a la tercera no pasa, el problema es
-   estructural (fase 0 o 1 mal resuelta) y el comando te lo dice en vez de churnear.
+   estructural (DESIGN.md incoherente o una referencia que choca con la marca) y el comando te lo dice en vez de churnear.
 
 ## 6. Un compañero necesita el pipeline en su proyecto
 

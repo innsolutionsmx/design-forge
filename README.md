@@ -7,8 +7,9 @@
 > Ahí está TODO el procedimiento — configuración con merge seguro de
 > `.claude/settings.json`, prerequisitos y los pasos que debe hacer el humano al final.
 
-Harness de diseño y desarrollo frontend para Claude Code. Orquesta un pipeline de 4 fases
-que lleva una interfaz de 0 a 100: contexto → ideación → build → crítica/test en loop.
+Harness de diseño y desarrollo frontend para Claude Code. Le pasás la captura de un diseño
+que encontraste y lo construye **1:1 en tu proyecto, con tus assets**, te muestra un preview
+verificado (referencia vs resultado, desktop y mobile) y, si querés, lo revisa con Impeccable.
 
 design-forge **no reemplaza** a las herramientas de diseño — las dirige. El plugin aporta
 los comandos de orquestación, la doctrina del ciclo y el MCP de Playwright para evidencia
@@ -17,24 +18,25 @@ visual real. El cerebro de crítica de diseño es [Impeccable](https://github.co
 ## El pipeline
 
 ```
-┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌──────────────────┐
-│ 0. CONTEXTO │ → │ 1. IDEACIÓN │ → │  2. BUILD   │ → │ 3. CRÍTICA + TEST│
-│ PRODUCT.md  │   │ variantes   │   │ código vs   │   │ critique + audit │
-│ DESIGN.md   │   │ in-place    │   │ DESIGN.md   │   │ + screenshots    │
-└─────────────┘   └─────────────┘   └─────────────┘   └────────┬─────────┘
-                                          ↑                    │
-                                          │     ¿pasa? ──no────┘
-                                          └────────────        sí → ship
+┌─────────────┐   ┌──────────────────────┐   ┌──────────────────┐
+│ 0. CONTEXTO │ → │ 1. REPLICATE (1:1)   │ → │ 2. REVIEW        │
+│ PRODUCT.md  │   │ captura → assets del │   │ solo si decís sí │
+│ DESIGN.md   │   │ proyecto → preview   │   │ critique + audit │
+└─────────────┘   │ verificado           │   └──────────────────┘
+                  └──────────────────────┘
+                  (sin referencia: build)
 ```
 
 | Fase | Comando | Qué hace |
 |------|---------|----------|
-| 0 — Contexto | `/design-forge:init` | Extrae el branding del cliente (SkillUI desde URL) o lo define desde cero (impeccable init). Todo lo demás lee PRODUCT.md y DESIGN.md. |
-| 1 — Ideación | `/design-forge:ideate` | Genera 2–3 direcciones de diseño in-place (rutas de preview temporales en el dev stack vivo, o mockups HTML en un subdir gitignored — sin worktrees por defecto); pairing tipográfico; concepto visual con Stitch si está instalado. Al elegir ganadora: pase de pulido opcional — UN critique de Impeccable sobre el ganador, fixes como delta (nunca rebuild), antes/después en URL viva y el usuario decide aplicar o descartar. |
-| 2 — Build | `/design-forge:build` | Implementa contra DESIGN.md. Componentes de 21st.dev y efectos WebGPU solo donde se justifican. |
-| 3 — Loop | `/design-forge:review` | impeccable critique + audit, screenshots reales en 3 viewports con Playwright, y decisión: pasa o vuelve a build. Antes de ship: polish + harden. |
-| 4 — Teardown | `/design-forge:teardown` | Cierra la exploración sin dejar residuos: archiva los mockups (para no perder trabajo untracked) y elimina el área de preview in-place (y los worktrees `idea/*` si el usuario los creó explícito). |
+| 0 — Contexto | `/design-forge:init` | Extrae el branding del cliente (SkillUI desde URL), consolida docs internos o lo define desde cero (impeccable init). Todo lo demás lee PRODUCT.md y DESIGN.md. |
+| 1 — Réplica | `/design-forge:replicate` | El flujo principal: captura (y URL opcional) → mapa de assets del proyecto (nunca los de la referencia) → build 1:1 → hoja de preview referencia vs resultado en desktop y mobile → un verificador adversarial → URL viva. Al aprobar, pregunta si corre el review. |
+| 1b — Build | `/design-forge:build` | UI sin referencia que copiar, contra DESIGN.md. Las librerías son inspiración, no dependencias. |
+| 2 — Review | `/design-forge:review` | Solo con tu sí: critique + audit de Impeccable con contexto, capturas reales con Playwright y decisión pasa/itera (máx 3). Antes de ship: polish + harden. |
 | — | `/design-forge:doctor` | Verifica prerequisitos y te dice qué falta y cómo instalarlo. |
+
+> **Desde 1.0.0** ya no existen `ideate` ni `teardown`: el preview comparativo de 3
+> variantes se reemplazó por la réplica 1:1, y `replicate` limpia su propio preview.
 
 ## Instalación
 
@@ -65,9 +67,7 @@ El MCP de Playwright viene incluido en el plugin — no hay que instalarlo apart
 | Herramienta | Rol | Instalación | ¿Obligatoria? |
 |-------------|-----|-------------|---------------|
 | [Impeccable](https://github.com/pbakaus/impeccable) | Cerebro de diseño: init, critique, audit, polish, harden | `npx impeccable install` | Sí |
-| [SkillUI](https://github.com/amaancoderx/npxskillui) | Extraer design system de una URL/repo de cliente | `npm i -g skillui` | Solo si partís de branding existente |
-| [Stitch skills](https://github.com/google-labs-code/stitch-skills) | Concepto visual en fase de ideación | `npx plugins add google-labs-code/stitch-skills --scope project --target claude-code` | Opcional |
-| [21st.dev Magic](https://github.com/21st-dev/magic-mcp) | Componentes React/Tailwind de producción | `npx @21st-dev/cli@latest install claude --api-key <KEY>` | Opcional (requiere API key) |
+| [SkillUI](https://github.com/amaancoderx/npxskillui) | Extraer valores exactos (tokens, motion) de la URL de una marca o de una referencia | `npm i -g skillui` | Opcional |
 | [webgpu-claude-skill](https://github.com/dgreenheck/webgpu-claude-skill) | Shaders Three.js/TSL para héroes y motion | copiar a `.claude/skills/` | Opcional |
 | [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) | DESIGN.md de referencia de marcas conocidas | copiar el archivo al repo | Opcional |
 
@@ -78,7 +78,7 @@ Corré `/design-forge:doctor` y te dice exactamente qué te falta.
 | Doc | Qué cubre |
 |-----|-----------|
 | [`docs/que-es-y-por-que.md`](./docs/que-es-y-por-que.md) | El problema que originó el plugin, sus dos ideas centrales y cómo funciona por dentro |
-| [`docs/casos-de-uso.md`](./docs/casos-de-uso.md) | Escenarios reales paso a paso (rediseño de sección, marca de cliente, review…) |
+| [`docs/casos-de-uso.md`](./docs/casos-de-uso.md) | Escenarios reales paso a paso (réplica 1:1, marca de cliente, review…) |
 | [`docs/referencia.md`](./docs/referencia.md) | Cada comando, la doctrina completa y el MCP bundleado |
 | [`docs/actualizacion.md`](./docs/actualizacion.md) | Instalación y actualización automática (autoUpdate, /reload-plugins, fallback) |
 | [`docs/desarrollo-y-releases.md`](./docs/desarrollo-y-releases.md) | El ciclo gotchas → reglas, y cómo se hace una release (dev → main + bump) |
