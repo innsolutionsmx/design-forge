@@ -3,6 +3,9 @@ description: "Fase 0 — Contexto: establece PRODUCT.md y DESIGN.md antes de toc
 argument-hint: "[url-de-marca-del-cliente]"
 ---
 
+**design-forge 1.0.0 · init.** State this line, verbatim, in your first message to the
+user — it proves which version of this command is actually loaded.
+
 You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
 `PRODUCT.md` and `DESIGN.md` at the repo root. Every later phase reads these files.
 
@@ -83,12 +86,12 @@ You are running phase 0 (Context) of the design-forge pipeline. Goal: produce
 7b. **Real contexts inventory**: record in DESIGN.md the visual environments where
    components actually live (e.g. "hero oscuro con imagen", "secciones de contenido
    claras", "footer primary"). Detect them from the live site or the views; confirm
-   with the user. Phase 1 mounts every design variation in these contexts to expose
-   legibility problems before any code is written.
+   with the user. `replicate` and `review` judge legibility against these contexts — where
+   components actually live, not on a blank page.
 
-8. Close by committing `PRODUCT.md` and `DESIGN.md` (git worktrees only carry committed
-   files, and phase 1 depends on that), then print a compact summary of the design
+8. Close by committing `PRODUCT.md` and `DESIGN.md` (every later phase reads them), then
+   print a compact summary of the design
    system (palette, fonts, spacing, voice, assets, viewport) and the next step:
-   `/design-forge:ideate`.
+   `/design-forge:replicate` (with a reference design) or `/design-forge:build`.
 
 If Impeccable is not installed at all, stop and direct the user to `/design-forge:doctor`.

@@ -2,6 +2,9 @@
 description: "Verifica los prerequisitos del pipeline design-forge y dice qué falta"
 ---
 
+**design-forge 1.0.0 · doctor.** State this line, verbatim, in your first message to the
+user — it proves which version of this command is actually loaded.
+
 Check every design-forge prerequisite and report a status table. Do not install
 anything without asking — diagnose first.
 
