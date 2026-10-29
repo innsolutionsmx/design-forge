@@ -1,136 +1,85 @@
 ---
 name: design-pipeline
-description: Doctrine for the design-forge frontend pipeline. Use when working on any frontend design or UI task in a project that has design-forge installed — building components, styling, reviewing UI, or deciding which design tool to use at which phase.
+description: Doctrine for the design-forge frontend pipeline. Use when working on any frontend design or UI task in a project that has design-forge installed — replicating a reference design, building components, styling, reviewing UI, or deciding which design tool to use at which phase.
 ---
 
-# design-forge pipeline doctrine
-
-design-forge structures frontend work into 4 phases. Know which phase you are in and
-use only the tools that belong to it.
+# design-forge pipeline doctrine (1.0.0)
 
 ## Phase map
 
-| Phase | Goal | Tools | Output |
-|-------|------|-------|--------|
-| 0. Context | Establish brand truth before any pixel | `impeccable init`, SkillUI (`skillui --url`), existing internal docs, awesome-design-md | `PRODUCT.md`, `DESIGN.md` (committed) with asset inventory + reference viewport |
-| 1. Ideation | Explore 2–3 directions cheaply | in-place preview routes (live dev stack) or self-contained HTML mockups in a gitignored subdir, Stitch skills, font pairing — no worktrees by default | chosen direction, updated `DESIGN.md`, ephemeral preview area |
-| 2. Build | Implement against DESIGN.md | code, 21st.dev components, webgpu-claude-skill | working UI |
-| 3. Critique loop | Evidence-based pass/iterate decision | impeccable `/critique` + `/audit`, Playwright MCP screenshots | verdict + fix list, or ship after `/polish` + `/harden` |
-| 4. Teardown | Close the exploration without leaving residue | `/design-forge:teardown` — archive mockups, `git worktree remove` + `branch -D` + `prune` | idea worktrees archived and removed, tree clean |
+| Phase | Command | Goal | Tools | Output |
+|-------|---------|------|-------|--------|
+| 0. Context | `/design-forge:init` | Brand truth before any pixel | Impeccable init, SkillUI, internal docs | `PRODUCT.md`, `DESIGN.md` (committed): tokens, assets, viewports |
+| 1. Replicate (main flow) | `/design-forge:replicate` | A reference design, 1:1, with the project's assets | Playwright MCP, SkillUI (with a URL), one verifier subagent | the section built in the project + verified fidelity preview |
+| 1b. Build | `/design-forge:build` | UI with no reference to copy | code in the project's stack | working UI |
+| 2. Review (on request) | `/design-forge:review` | Evidence-based pass/iterate by the design brain | Impeccable critique/audit/polish/harden, Playwright MCP | verdict + fixes |
 
-## Canonical workflow (section-level changes)
+## Canonical workflow
 
-The pipeline's default operating mode is **surgical, per-section iteration** — not
-full-site redesigns:
-
-1. The user brings an idea about a concrete section.
-2. Baseline screenshot of the real section (the "before"). Ideating something that has
-   no baseline requires telling the user there will be nothing to compare against.
-3. Variants built **in-place, never in an auto-created worktree** — as temporary preview
-   routes inside the running dev stack when one is mounted (Docker/Vite/HMR), or as
-   self-contained HTML mockups in a gitignored subdir (`design/ideas/`) referencing real
-   repo assets by relative path when there's no live stack. Always include one fresh
-   direction beyond the literal ask. Worktrees only on explicit user request.
-4. Compose the comparative preview sheet (explicit format per hard rule 9, each
-   variant in its real contexts, frames at real target width), show it as soon as
-   it's ready + open the live URL in the user's browser (`open <url>`; URLs also
-   printed on their own line in a code block — never inline, terminal truncation
-   corrupts them).
-5. Iterate v2, v3… on user feedback.
-6. Only on "esta es": implement in the real project (Blade/CSS/components, `feat/*`
-   branch). Non-winning previews are ephemeral — they live in the gitignored preview
-   area, not as permanent inventory.
-7. When the exploration is over (winner landed, runner-ups no longer needed), run
-   `/design-forge:teardown` to archive the mockups and remove the gitignored preview
-   area (or any worktrees the user explicitly created). Ideation opens the scaffold;
-   teardown takes it down.
+1. The user shares a screenshot (and maybe the URL) of a design they found.
+2. `replicate`: asset map → build 1:1 in the project → preview sheet (reference next to
+   result, desktop + both mobile heights + transition frame) → one adversarial verifier →
+   show on the live URL → iterate.
+3. On approval, ASK whether to run `review`. Then update DESIGN.md and delete the preview
+   area.
 
 ## Hard rules
 
-1. **DESIGN.md is law.** Never invent colors, fonts, spacing, or radii inline. If DESIGN.md
-   doesn't exist yet, you are in phase 0 — go create it before writing UI code.
-2. **One design brain.** Impeccable is the only critique/taste authority in this pipeline.
-   Do not load or follow UI/UX Pro Max, Taste, or frontend-design guidance in parallel.
-3. **Evidence over opinion — on the user's screen.** A design is never "done" because
-   the code looks right. Screenshots are taken at the desktop AND mobile reference
-   viewports recorded in DESIGN.md (never generic defaults) and are reference material;
-   the user's verdict happens on the live URL in their own browser. Agent screen ≠ user
-   screen.
-4. **The loop is bounded.** review → fix → review, maximum 3 iterations. If it still
-   fails after 3, stop and report to the user what is structurally wrong — don't churn.
-5. **Effects earn their place.** WebGPU/shaders/heavy motion only for hero moments,
-   ambient backgrounds, or explicit user requests — never as default decoration.
-   Always with a reduced-motion and no-WebGPU fallback.
-6. **Components before custom.** Prefer pulling a production component (21st.dev,
-   shadcn) and restyling it to DESIGN.md over hand-building from scratch.
-7. **The repo is not the brand truth.** Real brand assets (mascot, logos, photography)
-   may live outside the repo. Trust DESIGN.md's asset inventory and its "asset
-   pendiente" list — never assume a placeholder found in code is the real identity.
-8. **Vertical budget from v1, measured against the REAL fold.** Designs fit the primary
-   reference viewport intentionally and never depend on an exact height — fold-crossing
-   elements must look deliberate; use fluid spacing (`clamp()`, `100svh`). On mobile the
-   budget is the **alto útil** from DESIGN.md (URL bar expanded), never the device height:
-   they differ by ~12% and content that "fits" the device falls below the fold on the phone.
-9. **Never a bare render.** Any design options shown to the user use the explicit
-   comparative format: case badge (A/B/C) + title + status chip (`Recomendado` /
-   `Variación fresca` / `Riesgo`) + 1–2 line description with the tradeoff + frames
-   with context captions and a legible/ilegible badge. And always include at least
-   one fresh direction of your own beyond the literal ask. **The preview does two
-   jobs — DECIDE (which direction wins) and VERIFY FIDELITY (the built result matches
-   what was asked).** If the user brought a CONCRETE design to implement, skip the
-   variations (the decide job is already settled) — but NEVER skip the fidelity
-   preview: build it, then show ONE render of the result against the reference and
-   confirm the match before finalizing. "Implement directly with no preview" is
-   banned; the concrete case is exactly where the build silently diverges from the
-   ask, and the fidelity preview is the only net that catches it.
-10. **The preview must not lie.** Verify every render visually before showing it —
-   CSS specificity can leave text invisible while the CSS "looks right" (`.nav-links a`
-   at (0,2,1) beats `.nav-cta` at (0,2,0); write `a.nav-cta`). Render frames at the
-   real target width, never narrow columns (narrow crops fake overflows). That visual
-   pass is INTERNAL QA (the human decides on the live URL, not on a screenshot the agent
-   read), so DELEGATE it to a subagent that returns a `legible`/`ilegible` text verdict —
-   the screenshots stay quarantined in the subagent and never enter the orchestrator
-   context (ideate step 7). A single passive verifier rubber-stamps `go`: catch horizontal
-   overflow deterministically (`scrollWidth > clientWidth`, not by eye) and make every `go`
-   survive an adversarial refute pass before it counts. Render mobile at the TRUE width —
-   headless `--window-size` clamps `innerWidth` to ~500 and crops, faking clips; use
-   Playwright or a forced-width iframe, and when gate and eye disagree, the gate wins.
-11. **Mobile is first-class, not an afterthought — and one viewport height is not mobile
-   evidence.** DESIGN.md records a mandatory mobile viewport alongside desktop, at BOTH its
-   heights: `alto útil / fold` (URL bar expanded) and `alto del dispositivo` (collapsed) —
-   the mobile viewport is a range that changes at runtime, not a number. Every phase that
-   produces visual evidence renders desktop AND mobile: ideation frames both mobile states
-   always (iframe sized to the height being rendered, so `svh` resolves as it does on the
-   phone) and reports the decisive elements measured against the fold plus their diff
-   between states; build ships the `@media` mobile with the component; critique captures
-   both states and FAILS (ITERA, never PASA) without mobile evidence, with evidence at a
-   single height, or with a broken mobile composition. Mobile is not "narrower desktop" —
-   it's a distinct composition problem (single-column, background-position, object-fit,
-   text-over-image legibility) that hides bugs desktop never shows, and each height hides
-   bugs the other doesn't.
+1. **DESIGN.md is law.** Never invent colors, fonts, spacing, or radii inline. No
+   DESIGN.md yet → you are in phase 0.
+2. **Never use the reference's assets.** A reference screenshot or URL is someone else's
+   site: never crop, copy, trace, hotlink or embed its photos, logos, icons, illustrations
+   or mockups. Map each one to a project asset (DESIGN.md inventory, repo) or a neutral
+   placeholder marked `pendiente`.
+3. **1:1 means 1:1.** Layout, proportions, spacing rhythm, type scale, hierarchy and effects
+   come from the reference; colors and font families from DESIGN.md unless the user asks to
+   copy them. Divergences are reported, never silent.
+4. **One design brain.** Impeccable is the only critique/taste authority. Do not load UI/UX
+   Pro Max, Taste, or frontend-design guidance in parallel.
+5. **No implementation without a preview.** Every visual change ends in a preview the user
+   judges on the live URL in their own browser (`open <url>`, URL alone in a code block).
+   With a reference, the preview is reference vs result; screenshots are the agent's
+   reference material, not the user's verdict.
+6. **The preview must not lie.** Before showing it, ONE read-only subagent verifies it with
+   an adversarial prior ("assume it's broken"): true viewport (device emulation;
+   `clientWidth` equals the target width), header in its rest state, overflow gate
+   (`scrollWidth > clientWidth` — the gate beats the eye), fold measured in numbers,
+   fidelity and hierarchy vs the reference, assets from the project. It returns text only;
+   the screenshots never enter the orchestrator. Every round is logged in
+   `design/verificaciones.md`.
+7. **Mobile is first-class, and a range.** DESIGN.md records desktop and mobile, mobile at
+   both heights: `alto útil / fold` (URL bar expanded) and `alto del dispositivo`
+   (collapsed). Every visual check renders desktop AND both mobile states; the vertical
+   budget is the `alto útil`, never the device height. No mobile evidence, or evidence at a
+   single height → not done.
+8. **Review runs only on a yes.** `replicate` and `build` ask before `/design-forge:review`.
+   Once running, it's bounded: max 3 iterations, then report what's structurally wrong.
+9. **Captures have a home.** `mkdir -p design/preview/captures` before the first capture,
+   full path in every Playwright `filename`; `design/preview/` and `.playwright-mcp/` are
+   gitignored. Runs leave no residue: the preview area is deleted at the end, no archives.
+10. **Libraries are inspiration, not dependencies.** Build in the project's stack; show
+    sources for borrowed patterns ("encontré este carrusel en <url>"). Reuse a component
+    library only if the project already depends on it.
+11. **The repo is not the brand truth, and effects earn their place.** Trust DESIGN.md's
+    asset inventory over placeholders found in code. WebGPU/shaders/heavy motion only for
+    hero moments or explicit requests, always with reduced-motion and fallback.
 
-## Proven practices (keep doing these)
+## Proven practices
 
-- Self-contained mockups with real token values copied from DESIGN.md — high fidelity,
-  zero risk to the project.
-- Real repo assets referenced by relative path. With a live dev stack the running
-  server already resolves them; with the static substrate serve the subdir over HTTP
-  (Playwright MCP blocks `file://`, e.g. `python3 -m http.server 8899`).
-- 3 directions with name + thesis + tradeoff — fast user decisions.
-- Progressive screenshots: show each variant the moment it's ready, don't batch.
-- Scroll through the page (stepped, with delays) before any fullPage screenshot so
-  on-scroll reveals have fired.
+- CSS specificity: `a.nav-cta`, not `.nav-cta` — `.nav-links a` (0,2,1) beats (0,2,0) and
+  leaves text invisible.
+- Photos in `object-cover`: render a fan of `object-position` on the real container,
+  desktop and mobile, and let the user pick.
+- Scroll in steps with short delays before any fullPage capture so reveals have fired.
+- With HMR running, `navigate` → `wait_for` → `evaluate` without an internal delay; a
+  reload mid-`evaluate` destroys the execution context.
+- An intermittent element: rule out the instrument before blaming the site.
 
 ## Anti-patterns
 
-- Writing UI code before PRODUCT.md/DESIGN.md exist (or leaving them uncommitted —
-  worktrees only carry committed files).
-- Screenshotting only desktop and declaring responsive victory — mobile is a mandatory
-  capture at every evidence phase; a green desktop with no mobile proof is not a pass.
-- Running critique on code instead of on the rendered page.
-- "Fixing" a critique finding by lowering the bar (removing the rule) instead of the UI.
-- Auto-creating a git worktree to isolate ideation — in a project with a mounted dev
-  stack (Docker/Vite) the worktree is invisible to HMR and breaks the live preview.
-  Variants live in-place (separate routes/files); worktrees only on explicit request.
-- Deleting non-winning previews mid-decision — they're ephemeral but the user may still
-  be A/B-ing; tear them down via `/design-forge:teardown` once the winner lands.
+- Writing UI code before PRODUCT.md/DESIGN.md exist.
+- Using, cropping or hotlinking the reference's images "for now".
+- Screenshotting only desktop and declaring responsive victory.
+- Showing a preview that hasn't passed verification.
+- Running review without asking, or "fixing" a finding by relaxing the rule that caught it.
+- Archiving run artifacts in the repo; learnings go to memory.
