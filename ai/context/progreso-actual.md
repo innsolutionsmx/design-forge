@@ -8,10 +8,21 @@
 
 ## Última actualización
 
-- **Fecha**: 2026-08-03
-- **Máquina**: Mac (oficina)
-- **Rama actual**: `feat/propagacion-tags-protocolo` (lista para dev→main, sin bump)
-- **Última acción**: **CORRIDA DE VALIDACIÓN 0.7.1 CONTAMINADA + 3 mejoras cerradas.**
+- **Fecha**: 2026-10-28
+- **Máquina**: WSL2 (Linux)
+- **Rama actual**: `feat/replicate-1to1` (desde `dev`, sin push; bump a 1.0.0 ya hecho)
+- **Última acción**: **REDISEÑO 1.0.0 — `replicate` reemplaza a `ideate`.** El owner ya
+  no usaba ideate (caro en tokens); su flujo real es "captura de un diseño → 1:1 con los
+  assets del proyecto → preview". Nuevo `/design-forge:replicate` (mapa de assets, nunca
+  los de la referencia; build 1:1; hoja referencia vs resultado; UN verificador adversarial
+  con registro en `design/verificaciones.md`; pregunta antes del review). Se borraron
+  `ideate` y `teardown`; 21st.dev/shadcn pasan a inspiración; review solo con un sí y con
+  contexto para Impeccable; doctrina reescrita (11 reglas). Hook de preview: dependía de
+  `jq` y en máquinas sin jq NUNCA disparaba — ahora usa jq/python3/node y es más preciso
+  (tests en `tests/preview-discipline.test.sh`). Playwright MCP fijo en 0.0.83. Backlog:
+  las 6 pendientes cerradas dentro del rediseño. Plan: `odd/tasks/replicate-1to1.md`.
+  **Pendiente**: corrida real CIEGA de `replicate` en un consumidor antes de dev→main.
+- **Acción previa (2026-08-03)**: **CORRIDA DE VALIDACIÓN 0.7.1 CONTAMINADA + 3 mejoras cerradas.**
   La corrida en landing-urn quedó INVALIDADA como validación: (1) urn corría 0.6.1 — el
   `claude plugin update` cross-cwd había actualizado a landing-crb y su mensaje `already
   at the latest version` no nombra proyecto (la verdad de versiones es

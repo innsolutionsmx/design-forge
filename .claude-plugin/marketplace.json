@@ -1,6 +1,6 @@
 {
   "name": "design-forge",
-  "description": "Marketplace del plugin design-forge: harness de diseño frontend en 4 fases (contexto → ideación → build → crítica).",
+  "description": "Marketplace del plugin design-forge: harness de diseño frontend: réplica 1:1 de referencias con los assets del proyecto, preview verificado y review a pedido.",
   "owner": {
     "name": "Innsolutions"
   },
@@ -8,7 +8,7 @@
     {
       "name": "design-forge",
       "source": "./",
-      "description": "Frontend design harness: 4-phase pipeline (context → ideation → build → critique loop) orchestrating Impeccable, SkillUI, Stitch and Playwright."
+      "description": "Frontend design harness: replicate a reference design 1:1 with your project's assets, verified preview on desktop and mobile, Impeccable review on request."
     }
   ]
 }

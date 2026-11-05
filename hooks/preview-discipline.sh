@@ -1,62 +1,82 @@
 #!/usr/bin/env bash
-# UserPromptSubmit hook (BUNDLEADO en el plugin — se activa en cualquier proyecto
-# con design-forge instalado). Re-inyecta la disciplina de PREVIEW en cada prompt
-# que huela a decisión visual, para que no se pierda en la compactación.
+# UserPromptSubmit hook (bundled with the plugin — active in every project that has
+# design-forge installed). Re-injects the preview discipline on prompts that look like
+# visual work, so it survives compaction.
 #
-# Reparto (mejora #2): el hook RECUERDA la disciplina; el MODELO percibe la imagen.
-# Los adjuntos NO llegan al payload del hook (verificado contra doc oficial), así que
-# no intentamos "ver" la referencia — sólo disparamos por señales textuales de trabajo
-# visual y dejamos que el modelo, que sí ve el adjunto, decida qué preview aplica.
+# Split of duties: the hook REMINDS; the model, which sees any attached image, decides.
+# Attachments don't reach the hook payload, so we only match textual signals.
 #
-# Defensivo por diseño: ante cualquier falla salimos 0 sin inyectar nada. Un hook
-# NUNCA debe bloquear ni romper el prompt del usuario.
+# Defensive by design: on any failure, exit 0 without injecting. A hook must never block
+# or break the user's prompt. No hard dependency on jq: it used to require jq, and on a
+# machine without it the reminder silently never fired.
 set -uo pipefail
 
-# Sin jq no parseamos el payload de forma segura → no molestamos.
-command -v jq >/dev/null 2>&1 || exit 0
-
 payload="$(cat 2>/dev/null || true)"
-prompt="$(printf '%s' "${payload}" | jq -r '.prompt // empty' 2>/dev/null || true)"
+[ -n "${payload}" ] || exit 0
+
+extract_prompt() {
+  if command -v jq >/dev/null 2>&1; then
+    printf '%s' "${payload}" | jq -r '.prompt // empty' 2>/dev/null
+  elif command -v python3 >/dev/null 2>&1; then
+    printf '%s' "${payload}" | python3 -c 'import sys,json
+try: print(json.load(sys.stdin).get("prompt") or "")
+except Exception: pass' 2>/dev/null
+  elif command -v node >/dev/null 2>&1; then
+    printf '%s' "${payload}" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(JSON.parse(d).prompt||"")}catch(e){}})' 2>/dev/null
+  fi
+}
+
+prompt="$(extract_prompt || true)"
 [ -n "${prompt}" ] || exit 0
 
-# Señales de trabajo visual (umbral BAJO a propósito: preferimos un falso positivo
-# —algo de ruido— antes que un falso negativo —saltear el preview cuando importaba—).
-# Bilingüe: el plugin se usa en proyectos ES e EN.
-signals=(
-  # verbos de creación/cambio visual
-  'diseñ' 'rediseñ' 'maquet' 'estiliz' 'implementá' 'construí' 'armá' 'mejorá'
-  'design' 'redesign' 'build' 'restyle' 'revamp' 'mockup'
-  # objetos de UI
+# Strong signals: on their own they mean visual design work.
+strong=(
+  'diseñ' 'disen' 'maquet' 'estiliz' 'uno a uno' '1:1' 'idéntic' 'identic' 'replic'
+  'design' 'restyle' 'revamp' 'mockup' 'look like' 'se vea como'
+  'captura' 'screenshot' 'referencia' 'reference' 'figma'
+  '.png' '.jpg' '.jpeg' '.webp' 'object-cover' 'encuadre'
+)
+# UI objects: only count together with a creation/change verb.
+objects=(
   'navbar' 'hero' 'header' 'footer' 'landing' 'sección' 'seccion' 'section'
-  'componente' 'component' 'layout' 'card' 'botón' 'boton' 'button' 'modal'
-  'menú' 'menu' 'interfaz' 'pantalla' 'screen' 'página' 'pagina' ' page' 'ui '
-  # señales de referencia/asset visual
-  'referencia' 'reference' 'figma' 'captura' 'screenshot' 'adjunt' 'attach'
-  'imagen' 'image' ' foto' 'object-cover' 'encuadre' '.png' '.jpg' '.jpeg'
-  '.webp' '.svg'
+  'componente' 'component' 'layout' 'card' 'tarjeta' 'botón' 'boton' 'button' 'modal'
+  'carrusel' 'carousel' 'slider' 'pantalla' 'screen' 'vista' 'view' 'interfaz'
+)
+verbs=(
+  'haz ' 'hazme' 'hacé' 'crea' 'creá' 'arma' 'armá' 'construí' 'construye' 'implementa'
+  'implementá' 'agrega' 'agregá' 'añade' 'mejora' 'mejorá' 'cambia' 'cambiá' 'rehaz'
+  'make' 'create' 'add ' 'improve' 'redo' 'style'
 )
 
-matched=0
+has_any() { # needle-array-name -> 0 if the prompt contains any needle
+  local -n list="$1"
+  local kw
+  for kw in "${list[@]}"; do
+    [[ "${prompt}" == *"${kw}"* ]] && return 0
+  done
+  return 1
+}
+
 shopt -s nocasematch
-for kw in "${signals[@]}"; do
-  if [[ "${prompt}" == *"${kw}"* ]]; then matched=1; break; fi
-done
+matched=1
+if has_any strong; then
+  matched=0
+elif has_any objects && has_any verbs; then
+  matched=0
+fi
 shopt -u nocasematch
 
-[ "${matched}" -eq 1 ] || exit 0
+[ "${matched}" -eq 0 ] || exit 0
 
-read -r -d '' context <<'EOF' || true
+# Plain stdout on exit 0 is added to the prompt's context by UserPromptSubmit.
+cat <<'EOF'
 design-forge · DISCIPLINA DE PREVIEW: este pedido parece implicar una decisión visual.
-No vayas directo al código — ofrecé el preview que corresponda ANTES de finalizar:
-• Idea/dirección abierta → variaciones comparativas (A/B/C, formato explícito, hard rule 9).
-• Referencia concreta (mockup/spec/imagen adjunta) → preview de FIDELIDAD: construí y
-  mostrá el resultado vs la referencia en desktop Y mobile, confirmá el match (hard rule 9).
-• Asset/foto a colocar (object-cover) → preview de encuadre (abanico de object-position).
-El preview es la red que atrapa la divergencia entre lo pedido y lo construido; se pierde
-si dependés de acordarte. Si claramente NO es una tarea de diseño, ignorá este recordatorio.
+• Referencia (captura/URL de un diseño encontrado) → /design-forge:replicate: 1:1 con los
+  assets DEL PROYECTO — nunca los de la referencia — y preview referencia vs resultado.
+• Sin referencia → /design-forge:build, y preview antes de finalizar.
+• En ambos: desktop Y mobile (las dos alturas), verificado antes de mostrarlo, y preguntá
+  antes de correr /design-forge:review.
+Si claramente NO es una tarea de diseño, ignorá este recordatorio.
 EOF
-
-jq -n --arg ctx "${context}" \
-  '{hookSpecificOutput: {hookEventName: "UserPromptSubmit", additionalContext: $ctx}}'
 
 exit 0

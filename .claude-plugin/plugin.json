@@ -1,7 +1,7 @@
 {
   "name": "design-forge",
-  "description": "Frontend design harness: a 4-phase pipeline (context → ideation → build → critique loop) that orchestrates Impeccable, SkillUI, Stitch and Playwright to take a UI from 0 to 100.",
-  "version": "0.8.0",
+  "description": "Frontend design harness: replicate a reference design 1:1 with your project's assets, verify the preview on desktop and mobile, and review with Impeccable on request. Orchestrates Impeccable, SkillUI and Playwright.",
+  "version": "1.0.0",
   "author": {
     "name": "Innsolutions",
     "email": "innsolutions23@gmail.com"
@@ -9,7 +9,7 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["@playwright/mcp@0.0.83"]
     }
   }
 }

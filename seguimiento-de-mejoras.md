@@ -24,10 +24,127 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
 
 ## Pendientes
 
-<!-- Vacío: el backlog está en cero. Las mejoras entran acá desde cualquier proyecto vía
-     la skill `design-forge-mejora`; el hook SessionStart las cuenta al abrir sesión. -->
+<!-- Las 6 de abajo salieron de UNA corrida: `/design-forge:ideate` sobre la sección CTA
+     vocacional de landing-urn (2026-08-03). La corrida iba a validar la 0.7.1 y se
+     ejecutó con 0.6.1 — ver las entradas cerradas de propagación y de corrida ciega.
+     Los hallazgos son independientes de la versión: 4 de las 6 son fallas del
+     INSTRUMENTO de medición, no del diseño. -->
+
+_Sin pendientes: las 6 de la corrida de landing-urn se cerraron en 1.0.0 (aplicadas al flujo `replicate`)._
 
 ## Hechas
+
+- [x] **Frame de TRANSICIÓN + gate de composición: el encuadre aislado esconde los conflictos de jerarquía** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** el bug más grave de la corrida sobrevivió a TRES rondas de QA
+    (pasiva → adversarial → re-verificación) y lo encontró el humano de casualidad
+    mirando una captura DESPUÉS del `go`. El brief era "que el usuario haga click en el
+    CTA"; el diagnóstico era "el CTA dorado del hero pesa más que el CTA principal de
+    esta sección". La variante ganadora le dio a ese CTA el MISMO dorado, mismo tamaño,
+    mismo radio → quedaron dos botones dorados equivalentes a 486px de distancia en la
+    misma pantalla mobile. No resolvió la jerarquía: la EMPATÓ, o sea falló contra el
+    objetivo declarado. Dos causas independientes: (1) todos los frames usaban el
+    encuadre "tope de la sección alineado al tope del viewport", que aísla la sección de
+    su vecino y por construcción no puede mostrar el conflicto; (2) el contrato del
+    verificador pide `legible`/`ilegible`, y "dos elementos compiten por la atención" no
+    es ilegibilidad — el verificador no podía reportarlo ni queriendo.
+  - **Mejora propuesta:** (1) `ideate` paso 6 suma un **frame de transición** por
+    variante: la sección con su vecino ANTERIOR visible (el scroll donde entra en
+    pantalla, no donde ya está encuadrada). Es el único frame que muestra si el bloque
+    se fusiona con lo de arriba o compite con él. (2) El contrato del verificador suma
+    un eje **jerarquía** al lado de legibilidad: enumerar los elementos de peso visual
+    comparable (mismo color de acento, área similar) co-visibles en un viewport, y
+    contrastarlos contra el objetivo del brief. Un `go` de legibilidad no debe poder
+    tapar un fallo contra el objetivo.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `replicate` paso 5 suma el frame **transición** (la sección con su vecino anterior visible) y el contrato del verificador suma el eje **jerarquía** (elementos de peso comparable co-visibles vs el objetivo).
+  - **Impacto:** alto
+
+- [x] **Preferir device emulation sobre `browser_resize` al medir mobile (el scrollbar roba 15px de LAYOUT)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** con viewport 390 el contenido rendía a `clientWidth: 375`. La
+    causa NO es el scrollbar en abstracto: es que `browser_resize` **no emula un
+    dispositivo**, así que el browser mantiene el scrollbar de escritorio, que consume
+    ancho de layout — en iOS es overlay y no consume nada. `ideate.md` paso 7 trata
+    "device emulation / `browser_resize`" como equivalentes y para esto no lo son. No es
+    cosmético: los 15px cambiaron el wrap del título y con eso el alto de la sección en
+    30px. Se detectó de casualidad al loguear `clientWidth` junto a las mediciones.
+  - **Mejora propuesta:** el verificador usa device emulation cuando está disponible; si
+    cae a `browser_resize`, el shell fuerza `scrollbar-width:none` +
+    `::-webkit-scrollbar{width:0}` como fallback. Y **assertar `clientWidth === <ancho
+    objetivo>`**, no solo `innerWidth` — `innerWidth` da 390 incluso cuando el layout
+    rinde a 375, así que el assert actual pasa mientras el frame miente.
+  - **Nota colgada (misma familia, impacto bajo):** con HMR vivo (Vite/Next), editar los
+    mockups dispara recargas que matan cualquier `evaluate` con delay interno
+    ("execution context destroyed"). Patrón que funciona: `navigate` → `wait_for` →
+    `evaluate` sin delay adentro.
+  - **Resolución (1.0.0, feat/replicate-1to1):** El verificador de `replicate` y las capturas de `review` usan device emulation; con `browser_resize` inyectan `scrollbar-width:none` y assertan `clientWidth` = ancho objetivo. La nota de HMR (`navigate` → `wait_for` → `evaluate` sin delay) entró a las prácticas de la doctrina.
+  - **Impacto:** alto
+
+- [x] **Forzar el estado de reposo del header antes de capturar — y REPORTAR cuánto tapa** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** el header del sitio se muestra mientras hay scroll y se oculta
+    850ms después de parar (comportamiento intencional del sitio). El scroll
+    PROGRAMÁTICO del preview lo despierta igual que un scroll humano, y el autoplay del
+    hero (7s) y del fan (5s) lo re-despiertan más tarde: los frames tapaban el título
+    entre 6 y 47px según el instante de captura. Un verificador adversarial lo reportó
+    como "race condition del SITIO" — plausible y falso, era el andamio. Costó una ronda
+    entera de QA persiguiendo un bug inexistente.
+  - **Mejora propuesta:** (1) el shell fuerza el reposo por **CSS** (`transform:
+    translateY(-100%) !important`, replicando la clase real del sitio), NO por JS: un
+    forzado de clase se lo come el reflow tardío de los ~4s — probado, falló. Verificado
+    con polling de 9s: el JS sigue quitando la clase y el header sigue retraído, porque
+    el CSS no depende de ella. (2) Suprimirlo NO alcanza: el alto del header (77px, con
+    el título de la sección en y=67) es **información de diseño** y el reporte tiene que
+    decirlo — el usuario ve ese header mientras scrollea. (3) Regla nueva para el
+    verificador: ante un elemento intermitente, descartar el INSTRUMENTO antes de
+    culpar al sitio.
+  - **Resolución (1.0.0, feat/replicate-1to1):** Paso 2 del contrato del verificador: reposo del header por CSS, autoplay pausado, alto del header reportado igual, y "descartar el instrumento antes de culpar al sitio" (también en la doctrina).
+  - **Impacto:** alto
+
+- [x] **El teardown DESCARTA las variantes perdedoras: no crear rama de archivo** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** la regla de oro de `teardown.md` dice "Archive before you
+    delete" y el paso 3 instruye crear `archive/design-ideas` y commitear los mockups
+    ahí. Siguiéndolo al pie de la letra quedó una rama con 1000 líneas y ~4MB de PNGs —
+    exactamente la basura que el comando existe para evitar. El owner lo corrigió: "el
+    chiste es no dejar archivos basura en cada corrida".
+  - **Mejora propuesta:** si el ganador YA está implementado, las variantes se borran sin
+    archivar ni preguntar. Reservar el archivado para cuando nada aterrizó todavía o el
+    usuario lo pide explícito. Los aprendizajes se persisten en MEMORIA, no como archivos
+    en el repo. Aclarar que la infraestructura reusable (hook condicional de rutas,
+    entradas de `.gitignore`) sí puede quedar: no es artefacto de una corrida, es lo que
+    hace que las próximas no dejen basura.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `teardown` se eliminó en 1.0.0. `replicate` paso 8 borra `design/preview/` sin archivar; quedan solo `.gitignore` y `design/verificaciones.md` (infraestructura); aprendizajes a memoria.
+  - **Impacto:** alto
+
+- [x] **Cada comando declara su versión en el TEXTO (autoverificable, sin leer JSON)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** una corrida entera se ejecutó con 0.6.1 creyendo validar 0.7.1.
+    La propagación ya se resolvió con `autoUpdate`, pero esa misma entrada admite que "el
+    autoUpdate corrió" también es una suposición. Hoy verificar la versión CARGADA exige
+    un `rg` de una frase distintiva contra el cache — un paso manual que hay que
+    acordarse de hacer, justo el tipo de cosa que este pipeline viene reemplazando por
+    gates.
+  - **Mejora propuesta:** cada `commands/*.md` abre declarando su versión literal
+    (ej. "design-forge 0.7.1 · fase 1"), y el comando instruye reportarla en la primera
+    salida al usuario. Es autoverificable por construcción: el agente reporta la versión
+    del texto que efectivamente se cargó, sin leer `installed_plugins.json` y sin
+    depender de que el cache esté sano — cubre el caso peligroso donde instalado ≠
+    cargado. Barato (una línea por comando) y se actualiza en el bump del release.
+    ⚠️ NO reponer esto como check de `doctor`: el check 11 se borró en 0.7.1 por nacer
+    muerto (el plugin no está instalado en su propio repo). Esto vive en los comandos,
+    que corren en el consumidor.
+  - **Resolución (1.0.0, feat/replicate-1to1):** Cada `commands/*.md` abre con `design-forge 1.0.0 · <comando>` y ordena declararla literal en la primera respuesta. Se actualiza en cada bump.
+  - **Impacto:** medio
+
+- [x] **Fijar un dir gitignored para las capturas (hoy caen en la RAÍZ del repo)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
+  - **Contexto/gotcha:** el Playwright MCP resuelve `filename` relativo a su cwd, que es
+    la raíz del repo. Una corrida dejó 24 PNGs sueltos ahí (los subagentes verificadores
+    generan muchos) y hubo que moverlos a mano dos veces; sin un `.gitignore` preparado
+    habrían entrado al commit del feature.
+  - **Mejora propuesta:** `ideate`/`review` crean el dir de capturas gitignored ANTES de
+    la primera captura y pasan el path completo en cada `filename`. **Probado:** el MCP
+    escribe en subdirectorios sin problema, pero NO los crea — falla con `ENOENT` si no
+    existe. O sea alcanza con `mkdir -p` una vez y cero movimientos post-captura. Sumar
+    `.playwright-mcp/` al `.gitignore` en el mismo paso (también se escribe en la raíz).
+    El teardown borra el dir.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `replicate` y `review` hacen `mkdir -p design/preview/captures` antes de la primera captura, pasan el path completo en cada `filename` y gitignorean `design/preview/` + `.playwright-mcp/`. Doctor chequea la higiene (check 8).
+  - **Impacto:** medio
 
 - [x] **Definir el mecanismo de propagación de releases a consumidores (hoy no existe)** · `origen: design-forge` · `2026-08-03` · `cerrada: 2026-08-03`
   - **Contexto/gotcha:** ningún consumidor real tenía `autoUpdate: true` (landing-urn ni siquiera tenía `extraKnownMarketplaces`), así que nadie recibía releases solo: landing-urn corrió 0.6.1 durante una validación mientras el marketplace servía 0.7.1. Versiones fantasma: se cree que un consumidor corre X y corre Y.

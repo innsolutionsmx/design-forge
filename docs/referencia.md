@@ -1,5 +1,8 @@
 # Referencia
 
+Cada comando arranca declarando su versión (`design-forge 1.0.0 · <comando>`) en su
+primera respuesta: así sabés qué versión se cargó de verdad, sin leer JSON.
+
 ## Comandos
 
 ### `/design-forge:init [url-de-marca]`
@@ -12,106 +15,98 @@ la marca), viewports de referencia del usuario — el mobile como **rango**: alt
 (barra desplegada) Y alto del dispositivo, medidos en el teléfono real, no estimados —,
 contextos reales (hero oscuro, secciones claras…). Cierra commiteando ambos archivos.
 
-### `/design-forge:ideate [brief]`
-Fase 1 — Ideación. Router: diseño concreto → build directo; sin diseño → preview
-comparativo. Baseline de la sección real primero. 2-3 variaciones (una fresca propia
-obligatoria) construidas **in-place** — rutas de preview temporales en el dev stack vivo,
-o mockups HTML autocontenidos en un subdir gitignored; sin worktrees por defecto (solo
-bajo orden explícita). Entregable: **preview sheet** — badge de caso + título + chip de
-estado + descripción con tradeoff + frames por contexto real con badge legible/ilegible,
-al ancho real del target. **Mobile rinde SIEMPRE dos frames** (estado fold y estado
-dispositivo, con la marca del fold en el segundo) y el verificador reporta los elementos
-decisivos medidos contra el fold + el diff entre estados — 12px de aire no se ven a ojo.
-Render verificado visualmente antes de mostrarse; veredicto del
-usuario sobre la URL viva. Al elegir ganadora: **pase de pulido opcional** — UN solo
-`/impeccable:critique` sobre el ganador (sin audit, sin loop — eso es fase 3), fixes
-aplicados como delta sobre los archivos ya construidos (snapshot previo como rollback,
-jamás rebuild), re-verificación con el contrato del paso 7 y antes/después en URL viva;
-el usuario decide aplicar o descartar. Los previews no elegidos son efímeros (se limpian
-en teardown).
+### `/design-forge:replicate [captura y/o URL + dónde va]`
+El flujo principal. Le pasás la captura de un diseño que encontraste (y la URL si la
+tenés) y lo construye **1:1 en tu proyecto, con tus assets**, sin que tengas que pedirlo:
+1. **Intake**: referencia + destino; baseline si reemplaza una sección existente. Por
+   defecto copia layout, proporciones, ritmo de espaciado, escala tipográfica, jerarquía y
+   efectos; colores y familias tipográficas salen de DESIGN.md (salvo que pidas copiarlos).
+2. **Lectura de la referencia**: con URL, la abre con Playwright para ver hovers, reveals y
+   carruseles, y ofrece SkillUI para sacar valores exactos. Si la captura sugiere un efecto
+   que no muestra, propone uno con su fuente ("encontré este carrusel en…").
+3. **Mapa de assets**: tabla asset de la referencia → asset del proyecto o `pendiente`
+   (placeholder neutro del mismo tamaño). **Nunca** usa, recorta ni enlaza los assets de la
+   referencia.
+4. **Build 1:1** directo en el proyecto, mobile incluido; abanico de `object-position` para
+   las fotos en `object-cover`.
+5. **Hoja de preview** en `design/preview/` (gitignored): referencia al lado del resultado,
+   en desktop, mobile estado fold, mobile estado dispositivo y frame de transición.
+6. **Verificación**: UN subagente adversarial ("asumí que está roto") que corre los gates
+   medibles y compara contra la referencia sección por sección. Devuelve solo texto; máximo
+   3 rondas; cada ronda queda en `design/verificaciones.md`.
+7. **Show** sobre la URL viva, solo después de un `go`.
+8. **Cierre**: pregunta antes de correr el review, actualiza DESIGN.md y borra
+   `design/preview/` sin archivar.
 
 ### `/design-forge:build [qué]`
-Fase 2 — Build. Implementa contra DESIGN.md (tokens only, mobile-first, accesibilidad
-desde el inicio, estados empty/loading/error). Componentes de producción antes que
-custom (21st.dev/shadcn); efectos WebGPU solo donde se justifican y con fallbacks.
+UI sin referencia que copiar. Implementa contra DESIGN.md (tokens only, mobile-first,
+accesibilidad desde el inicio, estados empty/loading/error). Las librerías de componentes
+son inspiración, no dependencias: muestra de dónde sacó un patrón y lo adapta a los
+tokens; solo reutiliza una librería si el proyecto ya la usa. Al terminar pregunta si
+corre el review.
 
 ### `/design-forge:review [url]`
-Fase 3 — Loop de crítica (máx 3 iteraciones). Evidencia: impeccable critique + audit,
-screenshots a los viewports de DESIGN.md — **desktop Y mobile, ambos obligatorios**
-(scroll-through previo para disparar reveals), interacciones ejercitadas, consola
-revisada. Veredicto PASA (→ impeccable polish + harden como ship gate) o ITERA (fix list
-priorizada) — con **gate de mobile bloqueante: sin evidencia mobile, con evidencia en UNA
-sola altura de viewport, o con composición mobile rota nunca PASA**. Tras 3 fallos:
-reporta el problema estructural y a qué fase volver.
+Loop de crítica (máx 3 iteraciones), **solo cuando dijiste que sí**. Le pasa a Impeccable
+la sección, su objetivo, DESIGN.md y —si viene de `replicate`— la referencia y las
+divergencias que aceptaste. Evidencia: critique + audit, capturas en `design/preview/captures/`
+a los viewports de DESIGN.md con device emulation — **desktop Y mobile en sus dos
+alturas** —, interacciones ejercitadas, consola revisada. Veredicto PASA (→ polish +
+harden) o ITERA, con gate de mobile bloqueante. Tras 3 fallos reporta el problema
+estructural.
 
 ### `/design-forge:doctor`
-Diagnóstico: Impeccable (requerido), Playwright MCP, servidor HTTP estático, fallback
-Chrome headless, SkillUI/Stitch/21st.dev/webgpu (opcionales), PRODUCT/DESIGN.md
-completos (incluido el viewport mobile registrado como RANGO, no como número),
-**detección de cerebros de diseño en conflicto** (UI/UX Pro Max, Taste,
-frontend-design → warning) y **aviso de worktrees `idea/*` viejos** sin cerrar
-(sugiere `/design-forge:teardown`). La validación del manifest NO vive acá: es el gate
-de release del repo del plugin (`scripts/validate-manifest.sh` + hook local).
+Diagnóstico: Impeccable (requerido), Playwright MCP, servidor HTTP estático (y `jq`,
+`python3` o `node` para el hook), fallback Chrome headless, SkillUI y webgpu (opcionales),
+PRODUCT/DESIGN.md completos (viewport mobile como RANGO), **cerebros de diseño en
+conflicto** (UI/UX Pro Max, Taste, frontend-design → warning) e **higiene del preview**
+(`.gitignore` y capturas sueltas). La validación del manifest NO vive acá: es el gate de
+release del repo del plugin (`scripts/validate-manifest.sh` + hook local).
 
 ## Skill de doctrina: `design-pipeline`
 
 Se auto-carga en cualquier tarea de UI del proyecto. Contiene el mapa de fases, el
-workflow canónico (cambios quirúrgicos por sección) y 11 hard rules; las claves:
+workflow canónico y 11 hard rules:
 
-1. DESIGN.md es ley — sin tokens inventados inline.
-2. Un solo cerebro de diseño (Impeccable).
-3. Evidencia sobre opinión — en la pantalla del USUARIO (viewport de referencia,
-   veredicto sobre URL viva).
-4. Loop acotado a 3 iteraciones.
-5. Los efectos se ganan su lugar (y siempre con fallback reduced-motion/no-WebGPU).
-6. Componentes antes que custom.
-7. El repo no es la verdad de la marca — vale el inventario de assets.
-8. Presupuesto vertical desde v1 (`clamp()`, `100svh`, fold intencional) — en mobile el
-   presupuesto es el **alto útil**, nunca el del dispositivo: difieren ~12%.
-9. **Never a bare render** — formato comparativo explícito + variación fresca siempre.
-   El preview cumple DOS funciones (decidir dirección Y verificar fidelidad); con diseño
-   concreto se saltean las variaciones, nunca el preview de fidelidad.
-10. **The preview must not lie** — verificación visual del render, especificidad CSS
-    (`a.nav-cta`, no `.nav-cta`), ancho real. La verificación es QA interno: se DELEGA a un
-    subagente que devuelve veredicto `legible`/`ilegible` en texto; los screenshots quedan
-    en cuarentena y no contaminan al orquestador (ideate paso 7). Un verificador pasivo hace
-    rubber-stamp: el overflow horizontal se caza determinísticamente (`scrollWidth >
-    clientWidth`) y todo `go` debe sobrevivir un pase adversarial de refutación. Renderizá
-    mobile al ancho REAL — headless `--window-size` clampea `innerWidth` a ~500 y recorta
-    (clips falsos); usá Playwright o un iframe de ancho forzado. Si gate y ojo discrepan,
-    gana el gate.
-11. **Mobile is first-class, y una sola altura NO es evidencia mobile** — el viewport
-    mobile es un RANGO que cambia en runtime: DESIGN.md registra alto útil/fold (barra
-    desplegada) Y alto del dispositivo. Cada fase con evidencia visual renderiza desktop Y
-    mobile, y mobile en sus DOS estados (iframe al alto que se está renderizando, así `svh`
-    resuelve como en el teléfono) reportando los elementos decisivos medidos contra el fold
-    y su diff entre estados; review FALLA (ITERA, nunca PASA) sin evidencia mobile, con
-    evidencia en una sola altura, o con composición mobile rota.
+1. DESIGN.md es ley.
+2. **Nunca usar los assets de la referencia** — se mapean a assets del proyecto o a
+   placeholders `pendiente`.
+3. **1:1 es 1:1** — estructura y efectos de la referencia, colores y fuentes de DESIGN.md
+   salvo pedido; las divergencias se reportan.
+4. Un solo cerebro de diseño (Impeccable).
+5. Sin preview no hay implementación — el veredicto es tuyo, sobre la URL viva.
+6. **El preview no puede mentir** — un verificador adversarial con viewport real (device
+   emulation, `clientWidth` = ancho objetivo), header en reposo, gate de overflow, fold
+   medido en números, fidelidad y jerarquía vs la referencia; capturas en cuarentena;
+   registro de cada ronda.
+7. Mobile es de primera clase y es un rango (alto útil y alto del dispositivo); el
+   presupuesto vertical es el alto útil.
+8. Review solo con un sí; acotado a 3 iteraciones.
+9. Las capturas tienen casa (`design/preview/captures/`) y las corridas no dejan residuos.
+10. Las librerías son inspiración, no dependencias.
+11. El repo no es la verdad de la marca, y los efectos se ganan su lugar.
 
 ## MCP bundleado
 
-**Playwright** (`@playwright/mcp`) — viaja con el plugin, cero config: navegación,
-screenshots, snapshot de accesibilidad, interacciones. Fallback sin él:
-`chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
+**Playwright** (`@playwright/mcp@0.0.83`, versión fija — `@latest` cambiaba solo) — viaja
+con el plugin, cero config: navegación, screenshots, device emulation, interacciones.
+Fallback sin él: `chrome --headless=new --screenshot=out.png --window-size=W,H <url>`.
 
 ## Hooks bundleados
 
 **Disciplina de preview** (`UserPromptSubmit`, `hooks/preview-discipline.sh`) — viaja
-con el plugin, cero config. Cuando un prompt huele a decisión visual (construir/cambiar
-UI, traer una referencia, colocar un asset), re-inyecta un recordatorio de la disciplina
-de preview: idea abierta → variaciones; referencia concreta → preview de fidelidad; asset
-→ preview de encuadre. Vive como hook —no como preferencia— porque una preferencia se
-pierde en la compactación y un hook se re-inyecta en cada prompt. El hook solo RECUERDA:
-no ve el adjunto de imagen (no llega a su payload), lo percibe el modelo. Es no-invasivo
-—dispara condicional a señales textuales y ante cualquier falla sale en silencio (nunca
-bloquea el prompt)—; si el pedido no es de diseño, se ignora.
+con el plugin, cero config. Cuando un prompt huele a trabajo visual re-inyecta el
+recordatorio: referencia → `replicate` (1:1, assets del proyecto, preview referencia vs
+resultado); sin referencia → `build` con preview; en ambos, desktop y mobile verificados y
+preguntar antes del review. Salta con señales fuertes (diseñ-, 1:1, captura, referencia,
+mockup…) o con un objeto de UI junto a un verbo de cambio ("agrega un carrusel al hero");
+ya no con palabras sueltas como `build` o `page`. Lee el prompt con `jq`, `python3` o
+`node` —antes dependía de `jq` y sin él nunca disparaba—, y ante cualquier falla sale en
+silencio. Tests: `bash tests/preview-discipline.test.sh`.
 
 ## Prerequisitos externos (ver README para instalación)
 
 | Herramienta | Rol | ¿Obligatoria? |
 |-------------|-----|---------------|
 | Impeccable | Cerebro de diseño (init, critique, audit, polish, harden) | Sí |
-| SkillUI | Extraer design system de URL de cliente | Solo con marca existente |
-| Stitch skills | Conceptos visuales en ideación | Opcional |
-| 21st.dev Magic | Componentes de producción | Opcional (API key) |
+| SkillUI | Extraer valores exactos de una URL (marca en init, referencia en replicate) | Opcional |
 | webgpu-claude-skill | Shaders para héroes/motion | Opcional |
