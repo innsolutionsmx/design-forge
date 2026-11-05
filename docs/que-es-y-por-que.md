@@ -11,33 +11,36 @@ Pedirle diseño frontend a un agente sin estructura produce dos fallas conocidas
    en vez de eligiendo.
 
 Además, el ecosistema de herramientas de diseño para agentes (Impeccable, SkillUI,
-Stitch, Playwright MCP, etc.) creció rápido y desordenado: varias compiten por el
+Playwright MCP, etc.) creció rápido y desordenado: varias compiten por el
 mismo rol y usarlas juntas sin criterio infla el contexto y produce consejos
 contradictorios.
 
 ## Qué resuelve
 
-design-forge estructura el trabajo de diseño en un **pipeline de 4 fases** donde cada
-herramienta tiene SU lugar y ninguna decisión visual se toma sin evidencia:
+design-forge estructura el trabajo de diseño en un pipeline corto donde cada herramienta
+tiene SU lugar y ninguna decisión visual se toma sin evidencia:
 
 ```
-0. CONTEXTO  →  1. IDEACIÓN  →  2. BUILD  →  3. CRÍTICA/TEST (loop)
-PRODUCT.md      preview           código        critique + audit
-DESIGN.md       comparativo       contra        + screenshots reales
-(la ley)        explícito         DESIGN.md     → ¿pasa o itera?
+0. CONTEXTO  →  1. REPLICATE (1:1)        →  2. REVIEW (si decís sí)
+PRODUCT.md      captura → assets propios      critique + audit
+DESIGN.md       → preview verificado          + screenshots reales
+(la ley)        referencia vs resultado       → ¿pasa o itera?
 ```
 
-Sus dos ideas centrales:
+Sus ideas centrales:
 
 - **DESIGN.md es ley**: la fase 0 establece la verdad de la marca (tokens, tipografía,
-  assets, viewport de referencia, contextos reales) y todo lo demás la obedece. Nada
-  de colores inventados inline.
-- **Preview comparativo explícito** (fase 1): ante un pedido sin diseño concreto, el
-  entregable NO es código ni un render pelado — es una hoja comparativa con 2-3
-  variaciones descritas (badge + título + chip de estado + tradeoff), cada una
-  montada en sus contextos reales, renderizada al ancho real. Se elige con los ojos,
-  ANTES de tocar el proyecto. Siempre incluye una dirección fresca propia además de
-  la literal pedida.
+  assets, viewports, contextos reales) y todo lo demás la obedece.
+- **La referencia manda en el diseño, el proyecto en los assets**: la forma más clara de
+  pedirle diseño a un agente es mostrarle una imagen. `replicate` la copia 1:1 sin que lo
+  pidas, pero con los assets de tu proyecto — nunca los de la captura, que son de otro sitio.
+- **El preview no puede mentir**: antes de que lo veas, un verificador adversarial lo mide
+  (overflow, fold, header, fidelidad, jerarquía) en desktop y mobile. Vos decidís sobre la
+  URL viva.
+
+> Hasta 0.8.0 la fase 1 era `ideate`: 2-3 variantes comparativas con doble verificación.
+> En 1.0.0 se quitó porque gastaba muchos tokens y el flujo real pasó a ser la réplica de
+> una referencia.
 
 ## Qué NO resuelve (a propósito)
 
@@ -47,12 +50,12 @@ Sus dos ideas centrales:
   [Impeccable](https://github.com/pbakaus/impeccable) — design-forge lo ORQUESTA, no
   lo reemplaza. Regla de oro: un solo cerebro de diseño (no convive con UI/UX Pro Max
   ni Taste).
-- **Implementar por vos**: la fase 2 escribe código, pero solo después de que la
-  fase 1 produjo una decisión con evidencia.
+- **Decidir por vos**: escribe código, pero el veredicto es tuyo sobre la URL viva, y el
+  review corre solo si lo pedís.
 
 ## Cómo funciona por dentro
 
-- **Comandos** (`/design-forge:init|ideate|build|review|doctor`): cada fase es un
+- **Comandos** (`/design-forge:init|replicate|build|review|doctor`): cada fase es un
   comando con su procedimiento. `doctor` diagnostica prerequisitos y detecta cerebros
   de diseño en conflicto.
 - **Skill de doctrina** (`design-pipeline`): 11 hard rules que se auto-cargan en
@@ -61,12 +64,10 @@ Sus dos ideas centrales:
   acotado a 3 iteraciones, etc.
 - **Playwright MCP bundleado**: la evidencia visual (screenshots reales en viewports
   reales) viene incluida con el plugin; con fallback a Chrome headless si falta.
-- **Ideación in-place (sin worktrees por defecto)**: las variaciones se construyen sobre
-  el checkout actual — rutas de preview temporales servidas por el dev stack vivo
-  (Docker/Vite/HMR real), o mockups HTML autocontenidos en un subdir gitignored cuando no
-  hay stack. Un worktree hermano sería invisible al HMR y rompería el preview vivo; solo
-  se crea bajo orden explícita (paralelismo real). Las variaciones no elegidas son
-  efímeras y se limpian en el teardown.
+- **Preview in-place y efímero**: la hoja de preview vive en `design/preview/`
+  (gitignored), servida por el dev stack vivo o por un servidor HTTP estático; al aprobar
+  se borra sin archivar. Solo queda `design/verificaciones.md`, el registro de lo que
+  atrapó el verificador.
 
 El pipeline evoluciona por evidencia: cada corrida real en un proyecto deja gotchas
 (ver `design/design-forge-gotchas.md` del primer dogfood en landing-crb) que vuelven

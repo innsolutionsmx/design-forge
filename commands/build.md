@@ -3,7 +3,12 @@ description: "Fase 2 — Build: implementa la UI contra DESIGN.md"
 argument-hint: "[qué construir]"
 ---
 
-You are running phase 2 (Build) of the design-forge pipeline.
+**design-forge 1.0.0 · build.** State this line, verbatim, in your first message to the
+user — it proves which version of this command is actually loaded.
+
+You are running phase 2 (Build) of the design-forge pipeline. If the user brought a
+reference design to copy (a screenshot or URL), that's `/design-forge:replicate`, not this
+command — send them there.
 
 ## Preconditions
 
@@ -13,8 +18,11 @@ Follow the design-pipeline skill's hard rules; the ones that bite hardest here:
 - **DESIGN.md is law.** Every color, font, spacing value, radius, and shadow comes from
   its tokens. If you need a value that doesn't exist, add it to DESIGN.md first (tell
   the user), then use it — never hardcode an off-system value inline.
-- **Components before custom.** If 21st.dev Magic MCP is available, pull production
-  components and restyle them to the tokens. Same for an existing shadcn setup.
+- **Libraries are inspiration, not dependencies.** Build components in the project's own
+  stack. When an element would benefit from a proven pattern (a carousel, a mega-menu),
+  show the user what you found and where — "encontré este carrusel en <url>, con este
+  efecto" — and adapt it to the tokens. Reuse a component library only if the project
+  already depends on it (e.g. an existing shadcn setup).
 - **Effects earn their place.** WebGPU/shaders (webgpu-claude-skill) only for hero
   moments or explicit requests, always with prefers-reduced-motion and non-WebGPU
   fallbacks.
@@ -34,6 +42,8 @@ Follow the design-pipeline skill's hard rules; the ones that bite hardest here:
 5. When done, do a quick self-check against DESIGN.md (tokens only? states covered?
    empty/loading/error states?) AND at the mobile viewport (single-column composition
    holds? photos keep their subject in frame? text legible over every background? no
-   horizontal scroll?), then hand off: "Listo para `/design-forge:review`."
+   horizontal scroll?).
+6. Ask before reviewing: "¿Corro el review con Impeccable (`/design-forge:review`)?"
+   Never start it without a yes.
 
-Do NOT run the full critique loop here — that's phase 3's job. Build, self-check, hand off.
+Do NOT run the critique loop here — that's phase 3's job, and only on the user's yes.

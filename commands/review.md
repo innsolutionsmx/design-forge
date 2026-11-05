@@ -3,8 +3,12 @@ description: "Fase 3 — Loop de crítica: impeccable critique/audit + screensho
 argument-hint: "[url-local ej. http://localhost:3000]"
 ---
 
-You are running phase 3 (Critique loop) of the design-forge pipeline. This is the heart
-of the harness: an evidence-based pass/iterate decision, bounded at 3 iterations.
+**design-forge 1.0.0 · review.** State this line, verbatim, in your first message to the
+user — it proves which version of this command is actually loaded.
+
+You are running phase 3 (Critique loop) of the design-forge pipeline: an evidence-based
+pass/iterate decision by the design brain (Impeccable), bounded at 3 iterations. It runs
+only when the user said yes — `replicate` and `build` ask before sending anyone here.
 
 ## Preconditions
 
@@ -17,7 +21,18 @@ of the harness: an evidence-based pass/iterate decision, bounded at 3 iterations
 
 ### 1. Gather evidence
 - Run Impeccable's critique (`/impeccable:critique`) and audit (`/impeccable:audit`)
-  against the running page. Capture scores and findings.
+  against the running page, and give it the context it needs to judge — not just the URL:
+  the section(s) under review (selectors or route), the goal of the section from the
+  user's brief, DESIGN.md as the rubric, and, when the work came from `replicate`, the
+  reference screenshot plus the divergences the user accepted on purpose (so the critique
+  doesn't "fix" the design away from what the user chose). Capture scores and findings.
+- Captures go under `design/preview/captures/` (create it with `mkdir -p` first and keep
+  `design/preview/` and `.playwright-mcp/` in `.gitignore`); pass the full path in every
+  Playwright `filename` — relative names land in the repo root.
+- Mobile captures use Playwright **device emulation** (or, with `browser_resize`, inject
+  `html{scrollbar-width:none}::-webkit-scrollbar{width:0}`) and assert
+  `document.documentElement.clientWidth` equals the target width — otherwise the desktop
+  scrollbar steals ~15px of layout and the evidence lies.
 - With the Playwright MCP, screenshot the target page at the **reference viewports
   recorded in DESIGN.md** — desktop AND mobile are both MANDATORY captures (plus the
   spot-check if recorded). Only if DESIGN.md doesn't record them, fall back to 390×844 /
@@ -66,7 +81,7 @@ Write a concrete, prioritized fix list (finding → file → change). Apply the 
 Re-enter step 1. Never "fix" a finding by relaxing the rule that caught it.
 
 If after 3 iterations it still fails: STOP. Report what is structurally wrong (usually
-a phase-0 or phase-1 problem: wrong direction, incoherent DESIGN.md) and recommend
+a phase-0 problem or the wrong direction: incoherent DESIGN.md, a reference that fights the brand) and recommend
 which phase to revisit. Churning past 3 loops burns tokens without converging.
 
 ### 4. Ship gate

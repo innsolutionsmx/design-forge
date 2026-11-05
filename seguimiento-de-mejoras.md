@@ -30,7 +30,11 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
      Los hallazgos son independientes de la versión: 4 de las 6 son fallas del
      INSTRUMENTO de medición, no del diseño. -->
 
-- [ ] **Frame de TRANSICIÓN + gate de composición: el encuadre aislado esconde los conflictos de jerarquía** · `origen: landing-urn` · `2026-08-03`
+_Sin pendientes: las 6 de la corrida de landing-urn se cerraron en 1.0.0 (aplicadas al flujo `replicate`)._
+
+## Hechas
+
+- [x] **Frame de TRANSICIÓN + gate de composición: el encuadre aislado esconde los conflictos de jerarquía** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** el bug más grave de la corrida sobrevivió a TRES rondas de QA
     (pasiva → adversarial → re-verificación) y lo encontró el humano de casualidad
     mirando una captura DESPUÉS del `go`. El brief era "que el usuario haga click en el
@@ -51,9 +55,10 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     comparable (mismo color de acento, área similar) co-visibles en un viewport, y
     contrastarlos contra el objetivo del brief. Un `go` de legibilidad no debe poder
     tapar un fallo contra el objetivo.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `replicate` paso 5 suma el frame **transición** (la sección con su vecino anterior visible) y el contrato del verificador suma el eje **jerarquía** (elementos de peso comparable co-visibles vs el objetivo).
   - **Impacto:** alto
 
-- [ ] **Preferir device emulation sobre `browser_resize` al medir mobile (el scrollbar roba 15px de LAYOUT)** · `origen: landing-urn` · `2026-08-03`
+- [x] **Preferir device emulation sobre `browser_resize` al medir mobile (el scrollbar roba 15px de LAYOUT)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** con viewport 390 el contenido rendía a `clientWidth: 375`. La
     causa NO es el scrollbar en abstracto: es que `browser_resize` **no emula un
     dispositivo**, así que el browser mantiene el scrollbar de escritorio, que consume
@@ -70,9 +75,10 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     mockups dispara recargas que matan cualquier `evaluate` con delay interno
     ("execution context destroyed"). Patrón que funciona: `navigate` → `wait_for` →
     `evaluate` sin delay adentro.
+  - **Resolución (1.0.0, feat/replicate-1to1):** El verificador de `replicate` y las capturas de `review` usan device emulation; con `browser_resize` inyectan `scrollbar-width:none` y assertan `clientWidth` = ancho objetivo. La nota de HMR (`navigate` → `wait_for` → `evaluate` sin delay) entró a las prácticas de la doctrina.
   - **Impacto:** alto
 
-- [ ] **Forzar el estado de reposo del header antes de capturar — y REPORTAR cuánto tapa** · `origen: landing-urn` · `2026-08-03`
+- [x] **Forzar el estado de reposo del header antes de capturar — y REPORTAR cuánto tapa** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** el header del sitio se muestra mientras hay scroll y se oculta
     850ms después de parar (comportamiento intencional del sitio). El scroll
     PROGRAMÁTICO del preview lo despierta igual que un scroll humano, y el autoplay del
@@ -89,9 +95,10 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     decirlo — el usuario ve ese header mientras scrollea. (3) Regla nueva para el
     verificador: ante un elemento intermitente, descartar el INSTRUMENTO antes de
     culpar al sitio.
+  - **Resolución (1.0.0, feat/replicate-1to1):** Paso 2 del contrato del verificador: reposo del header por CSS, autoplay pausado, alto del header reportado igual, y "descartar el instrumento antes de culpar al sitio" (también en la doctrina).
   - **Impacto:** alto
 
-- [ ] **El teardown DESCARTA las variantes perdedoras: no crear rama de archivo** · `origen: landing-urn` · `2026-08-03`
+- [x] **El teardown DESCARTA las variantes perdedoras: no crear rama de archivo** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** la regla de oro de `teardown.md` dice "Archive before you
     delete" y el paso 3 instruye crear `archive/design-ideas` y commitear los mockups
     ahí. Siguiéndolo al pie de la letra quedó una rama con 1000 líneas y ~4MB de PNGs —
@@ -103,9 +110,10 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     en el repo. Aclarar que la infraestructura reusable (hook condicional de rutas,
     entradas de `.gitignore`) sí puede quedar: no es artefacto de una corrida, es lo que
     hace que las próximas no dejen basura.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `teardown` se eliminó en 1.0.0. `replicate` paso 8 borra `design/preview/` sin archivar; quedan solo `.gitignore` y `design/verificaciones.md` (infraestructura); aprendizajes a memoria.
   - **Impacto:** alto
 
-- [ ] **Cada comando declara su versión en el TEXTO (autoverificable, sin leer JSON)** · `origen: landing-urn` · `2026-08-03`
+- [x] **Cada comando declara su versión en el TEXTO (autoverificable, sin leer JSON)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** una corrida entera se ejecutó con 0.6.1 creyendo validar 0.7.1.
     La propagación ya se resolvió con `autoUpdate`, pero esa misma entrada admite que "el
     autoUpdate corrió" también es una suposición. Hoy verificar la versión CARGADA exige
@@ -121,9 +129,10 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     ⚠️ NO reponer esto como check de `doctor`: el check 11 se borró en 0.7.1 por nacer
     muerto (el plugin no está instalado en su propio repo). Esto vive en los comandos,
     que corren en el consumidor.
+  - **Resolución (1.0.0, feat/replicate-1to1):** Cada `commands/*.md` abre con `design-forge 1.0.0 · <comando>` y ordena declararla literal en la primera respuesta. Se actualiza en cada bump.
   - **Impacto:** medio
 
-- [ ] **Fijar un dir gitignored para las capturas (hoy caen en la RAÍZ del repo)** · `origen: landing-urn` · `2026-08-03`
+- [x] **Fijar un dir gitignored para las capturas (hoy caen en la RAÍZ del repo)** · `origen: landing-urn` · `2026-08-03` · `cerrada: 2026-10-28`
   - **Contexto/gotcha:** el Playwright MCP resuelve `filename` relativo a su cwd, que es
     la raíz del repo. Una corrida dejó 24 PNGs sueltos ahí (los subagentes verificadores
     generan muchos) y hubo que moverlos a mano dos veces; sin un `.gitignore` preparado
@@ -134,9 +143,8 @@ proyecto donde se use el plugin (canal de handoff cross-proyecto).
     existe. O sea alcanza con `mkdir -p` una vez y cero movimientos post-captura. Sumar
     `.playwright-mcp/` al `.gitignore` en el mismo paso (también se escribe en la raíz).
     El teardown borra el dir.
+  - **Resolución (1.0.0, feat/replicate-1to1):** `replicate` y `review` hacen `mkdir -p design/preview/captures` antes de la primera captura, pasan el path completo en cada `filename` y gitignorean `design/preview/` + `.playwright-mcp/`. Doctor chequea la higiene (check 8).
   - **Impacto:** medio
-
-## Hechas
 
 - [x] **Definir el mecanismo de propagación de releases a consumidores (hoy no existe)** · `origen: design-forge` · `2026-08-03` · `cerrada: 2026-08-03`
   - **Contexto/gotcha:** ningún consumidor real tenía `autoUpdate: true` (landing-urn ni siquiera tenía `extraKnownMarketplaces`), así que nadie recibía releases solo: landing-urn corrió 0.6.1 durante una validación mientras el marketplace servía 0.7.1. Versiones fantasma: se cree que un consumidor corre X y corre Y.
